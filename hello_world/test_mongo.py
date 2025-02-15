@@ -1,5 +1,8 @@
 import os
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import pymongo
 import pytest
@@ -7,12 +10,12 @@ import pytest
 
 @pytest.fixture(scope="session")
 def mongodb():
-    user = os.environ["USR"]
-    password = os.environ["PWD"]
-    host = os.environ["HOST"]
+    user = os.getenv("USR")
+    password = os.getenv("PWD")
+    host = os.getenv("HOST")
+    port = os.getenv("PORT")
 
-    uri = "mongodb://%s:%s@%s" % (
-        quote_plus(user), quote_plus(password), host)
+    uri = f"mongodb://{quote_plus(user)}:{quote_plus(password)}@{host}:{port}"
 
     client = pymongo.MongoClient(uri)
 
