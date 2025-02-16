@@ -1,0 +1,20 @@
+# Игнорировать виртуальное окружение
+venv/
+env/
+.myenv/
+*.venv/
+
+# Игнорировать кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Игнорировать pytest кэш и отчеты
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Игнорировать файлы конфигурации (если не нужно делиться)
+.env
+.env.local
+secrets.ini
