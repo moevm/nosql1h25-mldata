@@ -1,11 +1,12 @@
 import os
-from urllib.parse import quote_plus
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import pymongo
 import pytest
+
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
+
+
+load_dotenv()
 
 
 @pytest.fixture(scope="session")
