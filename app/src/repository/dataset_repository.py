@@ -8,6 +8,7 @@ from typing import Optional
 from bson import ObjectId
 from flask import current_app, g
 from flask_pymongo import PyMongo
+from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy
 
 from app.src.models.Dataset import Dataset
@@ -54,11 +55,12 @@ class DatasetRepository:
         return briefs
 
     @staticmethod
-    def add_dataset(dataset: Dataset) -> None:
+    def add_dataset(dataset: Dataset) -> ObjectId:
         """
         Добавляет датасет в БД.
         """
-        db['DatasetCollection'].insert_one(dataset.to_dict())
+        inserted: InsertOneResult = db['DatasetCollection'].insert_one(dataset.to_dict())
+        return inserted.inserted_id
 
     @staticmethod
     def edit_dataset(dataset: Dataset) -> None:
