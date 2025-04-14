@@ -30,6 +30,17 @@ def add_dataset() -> Union[str, Response, BadRequest]:
     return BadRequest('Invalid method')
 
 
+@bp.route('/datasets/edit/<dataset_id>/', methods=['PATCH'])
+def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
+    """
+    Обращается к методам контроллера:
+        PATCH - для изменения датасета в БД
+    """
+    if request.method == 'PATCH':
+        return DatasetController.edit_dataset(dataset_id, request)
+    raise BadRequest('Invalid method')
+
+
 @bp.route('/dataset/<dataset_id>/', methods=['GET'])
 def get_dataset(dataset_id: str) -> Union[str, BadRequest]:
     """
