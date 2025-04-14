@@ -3,7 +3,7 @@
 """
 from typing import Union
 
-from flask import Blueprint, request
+from flask import Blueprint, Response, request
 from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
@@ -17,6 +17,17 @@ def get_datasets() -> str:
     Обращается с методу контроллера для отображения страницы со всеми датасетами.
     """
     return DatasetController.render_all_datasets()
+
+
+@bp.route('/datasets/add/', methods=['POST'])
+def add_dataset() -> Union[str, Response, BadRequest]:
+    """
+    Обращается к методам контроллера:
+        POST - для добавления датасета в БД. Информация о датасете содержится в передаваемом request.
+    """
+    if request.method == 'POST':
+        return DatasetController.add_dataset(request)
+    return BadRequest('Invalid method')
 
 
 @bp.route('/dataset/<dataset_id>/', methods=['GET'])
