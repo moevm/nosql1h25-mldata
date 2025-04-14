@@ -67,7 +67,10 @@ class DatasetRepository:
         """
         Изменяет датасет в БД.
         """
-        db['DatasetCollection'].update_one(dataset.to_dict())
+        db['DatasetCollection'].update_one(
+            {'_id': ObjectId(dataset.dataset_id)},
+            {'$set': dataset.to_dict()}
+        )
 
     @staticmethod
     def get_dataset(dataset_id: str) -> Optional[Dataset]:
