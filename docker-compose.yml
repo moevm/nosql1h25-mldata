@@ -1,0 +1,36 @@
+services:
+
+  mongodb: 
+    image: mongo:8.0.6
+    volumes:
+      - dbdata:/data/db/
+    
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    
+    networks:
+      - service_net
+
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+
+    depends_on:
+      - mongodb
+    
+    environment:
+      - MONGO_URI=mongodb://root:pass@mongodb:27017/
+
+    networks:
+      - service_net
+
+
+volumes:
+  dbdata:
+
+
+networks:
+  service_net:
+    driver: bridge
