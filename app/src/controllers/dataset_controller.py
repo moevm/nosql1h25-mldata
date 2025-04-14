@@ -51,7 +51,7 @@ class DatasetController:
         return response
 
     @staticmethod
-    def edit_dataset(dataset_id, request: Request) -> Response:
+    def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
         Создается объект DatasetFormData из данных request'а.
         Обращается к методу сервиса для изменения датасета в БД.
