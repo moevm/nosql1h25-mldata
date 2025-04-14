@@ -51,6 +51,29 @@ class DatasetController:
         return response
 
     @staticmethod
+    def edit_dataset(dataset_id, request: Request) -> Response:
+        """
+        Создается объект DatasetFormData из данных request'а.
+        Обращается к методу сервиса для изменения датасета в БД.
+        Сохраняется файл в выделенной директории.
+        Возвращается response, содержащий URL страницы, открываемой после добавления.
+        """
+
+        username = 'username'
+
+        form_values: DatasetFormValues = DatasetController._extract_form_values(request)
+        filepath: str = current_app.config['UPLOAD_FOLDER']
+        filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
+        with open(filepath, 'w') as file:
+            file.writelines(form_values.dataset_data)
+
+        DatasetService.update_dataset(dataset_id, form_values, author=username, filepath=filepath)
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/{dataset_id}'
+        return response
+
+    @staticmethod
     def get_dataset(dataset_id: str):
         """
         Возвращается json, содержащий данные о датасете.
