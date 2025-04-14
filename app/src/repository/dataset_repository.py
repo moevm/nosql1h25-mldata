@@ -1,8 +1,31 @@
 """
-Содержит репозитории приложения. Репозиторий напрямую работает с БД - добавляет, изменяет, удаляет и ищет записи в БД.
-Необходимо полностью переделать, так как на данный момент вместо MongoDB используется локальный массив db.
+Содержит репозитории приложения.
+Репозиторий напрямую работает с БД - добавляет, изменяет, удаляет и ищет записи в БД.
 """
+import os
+
+from flask import current_app, g
+from flask_pymongo import PyMongo
+from werkzeug.local import LocalProxy
+
 from app.src.models.DatasetBrief import DatasetBrief
+
+
+def get_db():
+    """
+    Геттер экземпляра БД
+    """
+    db_name = os.getenv('DB_NAME')
+
+    dbase = getattr(g, db_name, None)
+
+    if dbase is None:
+        dbase = g._database = PyMongo(current_app).cx[db_name]
+
+    return dbase
+
+
+db = LocalProxy(get_db)
 
 
 class DatasetRepository:
