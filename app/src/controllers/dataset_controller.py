@@ -3,8 +3,10 @@
 """
 import json
 
+from flask import jsonify
 from werkzeug.datastructures import FileStorage
 
+from app.src.models.Dataset import Dataset
 from app.src.models.DatasetFormValues import DatasetFormValues
 from app.src.services.dataset_service import DatasetService
 
@@ -22,6 +24,14 @@ class DatasetController:
         """
         all_datasets_brief = DatasetService.get_all_datasets_brief()
         return json.dumps([brief.to_dict() for brief in all_datasets_brief])
+
+    @staticmethod
+    def get_dataset(dataset_id: str):
+        """
+        Возвращается json, содержащий данные о датасете.
+        """
+        dataset: Dataset = DatasetService.get_dataset(dataset_id)
+        return jsonify(dataset.to_dict())
 
     @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:
