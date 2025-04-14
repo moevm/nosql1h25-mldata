@@ -3,7 +3,7 @@
 """
 from typing import Union
 
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, request, send_from_directory, current_app
 from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
@@ -54,3 +54,17 @@ def get_dataset(dataset_id: str) -> Union[str, BadRequest]:
         return DatasetController.get_dataset(dataset_id)
     except Exception:
         return BadRequest('Item can\'t be found')
+
+
+@bp.route('/dataset/download/<dataset_id>', methods=['GET'])
+def download_dataset(dataset_id: str):
+    """
+    Обращается к методам контроллера:
+        GET - получения файла с датасетом из БД
+    """
+
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return send_from_directory(
+        current_app.config['UPLOAD_FOLDER'], f'{dataset_id}.csv')
