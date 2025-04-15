@@ -1,5 +1,13 @@
 # nosql_template
 
+## Тестовые данные для авторизации
+Администратор:
+login: `administrator`
+password: `0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd`
+
+Пользователь:
+login: `vasily`
+password: `AuQ5UIkdEiQ0tpH8`
 
 ## Предварительная проверка заданий
 
