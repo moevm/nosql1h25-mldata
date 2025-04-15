@@ -3,8 +3,10 @@ import os
 import bson
 import pymongo
 import datetime
+import uuid
 
 import matplotlib.pyplot as plt
+from werkzeug.security import generate_password_hash
 
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 
@@ -186,11 +188,45 @@ def add_examples() -> None:
         "lastAccountModificationDate": datetime.datetime(2023, 10, 28, 14, 45, 21)
     })
 
+    # Admin 
+    admin_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p0"
+    admin_pass_hash = generate_password_hash("0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd")
+    db.User.update_one(
+        {"_id": admin_id},
+        {"$set": {
+            "username": "Administrator",
+            "login": "administrator",
+            "password": admin_pass_hash,
+            "status": 0,
+            "createdDatasetsCount": 0,
+            "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
+            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+        }},
+        upsert=True
+    )
+    print(f"Upserted Admin User with login: administrator, _id: {admin_id}")
+
+    # Regular User
+    user_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"
+    user_pass_hash = generate_password_hash("AuQ5UIkdEiQ0tpH8")
+    db.User.update_one(
+        {"_id": user_id},
+        {"$set": {
+            "username": "Vasily Pupkin",
+            "login": "vasily",
+            "password": user_pass_hash,
+            "status": 1,
+            "createdDatasetsCount": 1,
+            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+        },
+         "$setOnInsert": {
+             "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33, tzinfo=datetime.timezone.utc)
+         }},
+        upsert=True
+    )
+    print(f"Upserted Regular User with login: vasily, _id: {user_id}")
+
 
 if __name__ == '__main__':
     client.drop_database('gakkle')
     add_examples()
-    # a = db.DatasetGraphs.find_one()["graphs"][0]["data"]
-    # file_path = "test.svg"
-    # with open(file_path, "wb") as file:
-    #     file.write(a)
