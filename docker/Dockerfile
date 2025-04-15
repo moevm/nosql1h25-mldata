@@ -1,11 +1,14 @@
-FROM python:3.11-alpine3.21
+FROM python:3.11-alpine
 
 WORKDIR /app
 
-COPY ./app/requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
+COPY ./app/requirements.txt ./
 
-COPY ./app/create_db.py .
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT ["python"]
-CMD ["create_db.py"]
+COPY . /app
+
+EXPOSE 5000
+
+ENTRYPOINT ["flask"]
+CMD ["run", "--host=0.0.0.0", "--port=5000"]
