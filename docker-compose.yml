@@ -1,35 +1,46 @@
-services:
+version: '3.8'
 
-  mongodb: 
+services:
+  mongodb:
     image: mongo:8.0.6
     volumes:
       - dbdata:/data/db/
-    
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=pass
-    
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
     networks:
       - service_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   app:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-
+    container_name: my_flask_app
+    restart: always
     depends_on:
-      - mongodb
-    
+      mongodb:
+        condition: service_healthy
     environment:
-      - MONGO_URI=mongodb://root:pass@mongodb:27017/
-
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      FLASK_APP: app.run
+      FLASK_DEBUG: ${FLASK_DEBUG}
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "${FLASK_LISTEN_PORT:-5000}:5000"
     networks:
       - service_net
-
+    volumes:
+      - .:/app
 
 volumes:
   dbdata:
-
 
 networks:
   service_net:
