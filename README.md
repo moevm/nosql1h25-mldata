@@ -9,6 +9,14 @@ password: `0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd`
 login: `vasily`
 password: `AuQ5UIkdEiQ0tpH8`
 
+## Пример `.env` файла
+MONGO_ROOT_USER=root
+MONGO_ROOT_PASS=pass
+MONGO_DB_NAME=gakkle
+FLASK_SECRET_KEY=very_long_and_random_string_1234567890
+FLASK_DEBUG=1
+FLASK_LISTEN_PORT=5000
+
 ## Предварительная проверка заданий
 
 <a href=" ./../../../actions/workflows/1_helloworld.yml" >![1. Согласована и сформулирована тема курсовой]( ./../../actions/workflows/1_helloworld.yml/badge.svg)</a>
