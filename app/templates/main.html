@@ -1,199 +1,199 @@
-{% extends 'base.html' %}
-
-{% block menu %}
-<a class="header active item">Главная</a>
-{% endblock %}
-
-{% block content %}
-<div class="ui wide container">
-    <!-- Filters -->
-    <div class="ui two column stackable grid">
-        <!-- Search Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="twelve wide field">
-                            <div class="ui icon input">
-                                <input type="text" placeholder="Поиск по названию датасета" id="name-filter">
-                                <i class="search icon"></i>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gakkle</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="ui wide container">
+        <!-- Filters -->
+        <div class="ui two column stackable grid">
+            <!-- Search Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="twelve wide field">
+                                <div class="ui icon input">
+                                    <input type="text" placeholder="Поиск по названию датасета" id="name-filter">
+                                    <i class="search icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="name-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="name-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Data Size Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Количество обучающих данных</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="data-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="data-size-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="data-size-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Row Size Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Размер</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="row-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="row-size-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="row-size-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Downloads Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Количество загрузок</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="downloads-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="downloads-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="downloads-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Date Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Дата добавления:</label>
+                            </div>
+                            <div class="field">
+                                <label>От:</label>
+                            </div>
+                            <div class="field">
+                                
+                                <input type="date" id="date-from">
+                            </div>
+                            <div class="field">
+                                <label>До:</label>
+                            </div>
+                            <div class="field">
+                                
+                                <input type="date" id="date-to">
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="date-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Views Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Количество просмотров</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="views-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="views-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="views-sort">
+                                    <option>По возрастанию</option>
+                                    <option>По убыванию</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Data Size Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="field">
-                            <label>Количество обучающих данных</label>
-                        </div>
-                        <div class="two fields">
-                            <div class="field">
-                                <input type="number" placeholder="От" min="0" id="data-size-from">
-                            </div>
-                            <div class="field">
-                                <input type="number" placeholder="До" min="0" id="data-size-to">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="data-size-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
-                        </div>
-                    </div>
+    
+        <div class="ui three cards cards-container">
+            <a class="ui card" href="#">
+                <div class="content">
+                    <div class="header">Example 1</div>
+                    <div class="description">Delete me</div>
+                    <br>
+                    <div class="description">csv, 22423 кбайт</div>
                 </div>
-            </div>
+            </a>
         </div>
-
-        <!-- Row Size Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="field">
-                            <label>Размер</label>
-                        </div>
-                        <div class="two fields">
-                            <div class="field">
-                                <input type="number" placeholder="От" min="0" id="row-size-from">
-                            </div>
-                            <div class="field">
-                                <input type="number" placeholder="До" min="0" id="row-size-to">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="row-size-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Downloads Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="field">
-                            <label>Количество загрузок</label>
-                        </div>
-                        <div class="two fields">
-                            <div class="field">
-                                <input type="number" placeholder="От" min="0" id="downloads-from">
-                            </div>
-                            <div class="field">
-                                <input type="number" placeholder="До" min="0" id="downloads-to">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="downloads-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Date Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="field">
-                            <label>Дата добавления:</label>
-                        </div>
-                        <div class="field">
-                            <label>От:</label>
-                        </div>
-                        <div class="field">
-                            
-                            <input type="date" id="date-from">
-                        </div>
-                        <div class="field">
-                            <label>До:</label>
-                        </div>
-                        <div class="field">
-                            
-                            <input type="date" id="date-to">
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="date-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Views Filter -->
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui form">
-                    <div class="inline fields">
-                        <div class="field">
-                            <label>Количество просмотров</label>
-                        </div>
-                        <div class="two fields">
-                            <div class="field">
-                                <input type="number" placeholder="От" min="0" id="views-from">
-                            </div>
-                            <div class="field">
-                                <input type="number" placeholder="До" min="0" id="views-to">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" id="views-sort">
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    
+        
     </div>
 
-    <div class="ui three cards cards-container">
-        {% for brief in datasets_brief %}
-        <a class="ui card" href="/datasets/{{ brief.dataset_id }}/">
-            <div class="content">
-                <div class="header">{{ brief.dataset_name }}</div>
-                <div class="description">{{ brief.dataset_description }}</div>
-                <br>
-                <div class="description">{{ brief.dataset_type }}, {{ brief.dataset_size }} кбайт</div>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-
-    <!-- Add Button -->
     <a class="circular ui icon button massive secondary add-button" href="/datasets/add/">
         <i class="icon plus"></i>
     </a>
-</div>
-{% endblock %}
 
-{% block extra %}
-<a class="circular ui icon button massive secondary add-button" href="/datasets/add/">
-    <i class="icon plus"></i>
-</a>
-{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+</body>
+</html>
