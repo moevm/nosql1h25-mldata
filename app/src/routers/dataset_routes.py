@@ -16,6 +16,4 @@ def get_datasets() -> str:
     Обращается с методу контроллера для отображения страницы со всеми датасетами.
     Требует аутентификации.
     """
-    print(f"User {current_user.login} (Admin: {current_user.is_admin}) accessing datasets.")
-
     return DatasetController.render_all_datasets()
