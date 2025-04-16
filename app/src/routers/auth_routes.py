@@ -30,7 +30,8 @@ LOGIN_TEMPLATE = """
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="alert alert-{{ category or 'info' }} alert-dismissible fade show" role="alert">
+              {# Use 'danger' for errors, 'warning' for warnings, 'info' for info, 'success' for success #}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
@@ -73,7 +74,7 @@ def login():
         password_attempt = request.form.get('password')
 
         if not login_attempt or not password_attempt:
-             flash('Login and Password are required.', 'warning')
+             flash('Требуется логин и пароль', 'warning')
              return render_template_string(LOGIN_TEMPLATE), 400
 
         user = UserRepository.find_by_login(login_attempt)
@@ -86,8 +87,10 @@ def login():
                     next_page = None
                 return redirect(next_page or url_for('datasets.get_datasets'))
             else:
-                 return render_template_string(LOGIN_TEMPLATE), 403
+                flash('Учётная запись неактивна', 'warning')
+                return render_template_string(LOGIN_TEMPLATE), 403
         else:
+            flash('Неверный логин или пароль.', 'danger')
             return render_template_string(LOGIN_TEMPLATE), 401
 
     return render_template_string(LOGIN_TEMPLATE)
@@ -100,5 +103,5 @@ def logout():
     Выход пользователя из системы.
     """
     logout_user()
-    flash('You have been logged out.', 'info')
+    flash('Вы вышли из системы', 'info')
     return redirect(url_for('auth.login'))

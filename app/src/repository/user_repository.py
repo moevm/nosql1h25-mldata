@@ -34,7 +34,7 @@ class UserRepository:
         if db is None:
             print("UserRepository: Database connection not available.")
             return None
-        try:
+        try: 
             user_data = db.User.find_one({"login": login})
             if user_data:
                 return User(user_data)
