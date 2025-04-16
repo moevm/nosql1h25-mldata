@@ -19,8 +19,8 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'secret_key')
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
-login_manager.login_message = "Please log in to access this page."
-login_manager.login_message_category = "info"
+login_manager.login_message = "Log in to access this page."
+login_manager.login_message_category = "warning"
 
 @login_manager.user_loader
 def load_user(user_id: str):
@@ -35,7 +35,12 @@ def unauthorized():
     Handles unauthorized access attempts. Redirects to login page.
     """
     flash("You need to be logged in to view this page.", "warning")
-    return redirect(url_for('auth.login', next=request.path))
+    
+    next_url = request.path
+    if request.query_string:
+        next_url += '?' + request.query_string.decode('utf-8')
+
+    return redirect(url_for('auth.login', next=next_url))
 
 
 app.register_blueprint(dataset_routes.bp)
