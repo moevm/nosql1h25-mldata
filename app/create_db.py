@@ -191,41 +191,29 @@ def add_examples() -> None:
     # Admin 
     admin_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p0"
     admin_pass_hash = generate_password_hash("0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd")
-    db.User.update_one(
-        {"_id": admin_id},
-        {"$set": {
-            "username": "Administrator",
-            "login": "administrator",
-            "password": admin_pass_hash,
-            "status": 0,
-            "createdDatasetsCount": 0,
-            "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
-        }},
-        upsert=True
-    )
-    print(f"Upserted Admin User with login: administrator, _id: {admin_id}")
+    db.User.insert_one({
+        "_id": admin_id,
+        "username": "Administrator",
+        "login": "administrator",
+        "password": admin_pass_hash,
+        "status": 0,
+        "createdDatasetsCount": 0,
+        "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
+        "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+    })
 
     # Regular User
-    user_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"
+    user_id = "09365d4b-af81-42ae-89b8-54f232c0c8fb"
     user_pass_hash = generate_password_hash("AuQ5UIkdEiQ0tpH8")
-    db.User.update_one(
-        {"_id": user_id},
-        {"$set": {
-            "username": "Vasily Pupkin",
-            "login": "vasily",
-            "password": user_pass_hash,
-            "status": 1,
-            "createdDatasetsCount": 1,
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
-        },
-         "$setOnInsert": {
-             "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33, tzinfo=datetime.timezone.utc)
-         }},
-        upsert=True
-    )
-    print(f"Upserted Regular User with login: vasily, _id: {user_id}")
-
+    db.User.insert_one({
+        "_id": user_id,
+        "username": "Vasily Pupkin",
+        "login": "vasily",
+        "password": user_pass_hash,
+        "status": 1,
+        "createdDatasetsCount": 1,
+        "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+    })
 
 if __name__ == '__main__':
     client.drop_database('gakkle')
