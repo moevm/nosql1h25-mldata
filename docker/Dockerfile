@@ -1,11 +1,22 @@
-FROM python:3.11-alpine3.21
+FROM python:3.11-alpine
 
 WORKDIR /app
 
-COPY ./app/requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
+RUN apk add --no-cache netcat-openbsd
 
-COPY ./app/create_db.py .
+COPY ./app/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . /app
 
-ENTRYPOINT ["python"]
-CMD ["create_db.py"]
+EXPOSE 5000
+
+ENV MONGO_HOST=mongodb
+ENV MONGO_PORT=27017
+
+ENTRYPOINT ["/bin/sh", "-c", "\
+    while ! nc -z $MONGO_HOST $MONGO_PORT; do \
+      sleep 1; \
+    done; \
+    python ./app/create_db.py; \
+    exec flask run --host=0.0.0.0 --port=5000 \
+"]
