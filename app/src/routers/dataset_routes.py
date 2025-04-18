@@ -9,10 +9,10 @@ from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
 
-bp: Blueprint = Blueprint('datasets', __name__, url_prefix='/datasets')
+bp: Blueprint = Blueprint('datasets', __name__)
 
 
-@bp.route('/', methods=['GET'])
+@bp.route('/datasets', methods=['GET'])
 @login_required
 def get_datasets() -> str:
     """
