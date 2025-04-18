@@ -1,6 +1,8 @@
 services:
   mongodb:
     image: mongo:8.0.6
+    ports:
+      - 27017:27017
     volumes:
       - dbdata:/data/db/
     environment:
@@ -14,6 +16,25 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  mongo-express:
+    image: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongodb:27017
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_MONGODB_AUTH_USERNAME: ${MONGO_ROOT_USER}
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: ${MONGO_ROOT_PASS}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGOEXPRESS_LOGIN}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRESS_PASSWORD}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - 8081:8081
+    networks:
+      - service_net
 
   app:
     build:
