@@ -1,0 +1,48 @@
+::-webkit-scrollbar {
+    width: 0;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    padding-top: 2em;
+}
+
+.add-button {
+    position: fixed;
+    bottom: 5%;
+    right: 2%
+}
+
+.cards-container {
+    padding-top: 1em;
+}
+
+.centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70%;
+}
+
+.searchbar {
+    width: 100%;
+}
+
+.padded-container {
+    padding: 2em;
+}
+
+.ui.form input:focus,
+.ui.form textarea:focus,
+.ui.form select:focus {
+    border-color: #212121 !important;
+}
+
+.error-message {
+    font-size: 4rem;
+    margin-top: 4rem;
+    font-family: monospace;
+    letter-spacing: 5px;
+    color: #D01919;
+}
