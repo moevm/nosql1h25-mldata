@@ -70,4 +70,5 @@ def download_dataset(dataset_id: str):
         return BadRequest('Invalid method')
 
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], f'{dataset_id}.csv')
+        current_app.config['UPLOAD_FOLDER'], f'{dataset_id}.csv'
+    )

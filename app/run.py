@@ -24,7 +24,7 @@ password = os.getenv("MONGO_ROOT_PASS")
 host = os.getenv("HOST")
 port = os.getenv("PORT")
 
-app.config['MONGO_URI'] = f"mongodb://{quote_plus(user)}:{quote_plus(password)}@{host}:{port}"
+app.config['MONGO_URI'] = f"mongodb://root:pass@db:27017"
 app.config['UPLOAD_FOLDER'] = os.getenv('DATASET_DIR', './datasets')
 
 

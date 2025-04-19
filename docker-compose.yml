@@ -1,5 +1,5 @@
 services:
-  mongodb:
+  db:
     image: mongo:8.0.6
     ports:
       - 27017:27017
@@ -20,7 +20,7 @@ services:
   mongo-express:
     image: mongo-express
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongodb:27017
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@db:27017
       ME_CONFIG_MONGODB_PORT: 27017
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
       ME_CONFIG_MONGODB_AUTH_DATABASE: admin
@@ -29,7 +29,7 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGOEXPRESS_LOGIN}
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRESS_PASSWORD}
     depends_on:
-      mongodb:
+      db:
         condition: service_healthy
     ports:
       - 8081:8081
@@ -43,10 +43,10 @@ services:
     container_name: my_flask_app
     restart: always
     depends_on:
-      mongodb:
+      db:
         condition: service_healthy
     environment:
-      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@db:27017/${MONGO_DB_NAME}?authSource=admin
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
       FLASK_APP: app.run
       FLASK_DEBUG: ${FLASK_DEBUG}
