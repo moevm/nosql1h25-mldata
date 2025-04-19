@@ -6,6 +6,7 @@ import os
 import pymongo
 from typing import Optional
 
+from typing import Any
 from bson import ObjectId
 from flask import current_app, g
 from flask_pymongo import PyMongo
@@ -14,6 +15,7 @@ from werkzeug.local import LocalProxy
 
 from app.src.models.Dataset import Dataset
 from app.src.models.DatasetBrief import DatasetBrief
+
 
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
@@ -63,17 +65,9 @@ class DatasetRepository:
             return briefs
 
         try:
-            cursor = db.DatasetInfo.find(
-                {},
-                {
-                    "_id": 1,
-                    "name": 1,
-                    "description": 1,
-                    "size": 1,
-                    "path": 1
-                }
-            )
-            for doc in cursor:
+            cursor = db.DatasetInfoCollection.find()
+            datasets_info: list[dict[str, Any]] = [doc for doc in cursor]
+            for doc in datasets_info:
                 dataset_type = "Unknown"
                 if doc.get("path"):
                     try:
@@ -104,7 +98,7 @@ class DatasetRepository:
         """
         Добавляет датасет в БД.
         """
-        inserted: InsertOneResult = db['DatasetCollection'].insert_one(dataset.to_dict())
+        inserted: InsertOneResult = db['DatasetInfoCollection'].insert_one(dataset.to_dict())
         return inserted.inserted_id
 
     @staticmethod
@@ -112,7 +106,7 @@ class DatasetRepository:
         """
         Изменяет датасет в БД.
         """
-        db['DatasetCollection'].update_one(
+        db['DatasetInfoCollection'].update_one(
             {'_id': ObjectId(dataset.dataset_id)},
             {'$set': dataset.to_dict()}
         )
@@ -123,7 +117,7 @@ class DatasetRepository:
         Возвращает объект Info для датасета с индексом dataset_id.
         Если датасета с индексом dataset_id нет, то возвращает None.
         """
-        collection = db['DatasetCollection']
+        collection = db['DatasetInfoCollection']
 
         dataset = collection.find_one({'_id': ObjectId(dataset_id)})
         if dataset is None:

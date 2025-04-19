@@ -10,7 +10,7 @@ COPY .. /app
 
 EXPOSE 5000
 
-ENV MONGO_HOST=mongodb
+ENV MONGO_HOST=db
 ENV MONGO_PORT=27017
 
 ENTRYPOINT ["/bin/sh", "-c", "\

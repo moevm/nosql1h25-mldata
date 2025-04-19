@@ -28,21 +28,19 @@ db = client[db_name]
 
 
 def add_examples() -> None:
-    db.DatasetInfo.insert_one({
-        "DatasetInfo": {
-            "_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
-            "name": "Sales Data 2023",
-            "description": "This dataset contains information about sales",
-            "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
-            "author": "John Sales",
-            "rowCount": 12500,
-            "columnCount": 24,
-            "size": 5242880,
-            "path": "/datasets/sales/dataset.csv",
-            "lastVersionNumber": 5,
-            "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
-            "lastModifiedBy": "Jane Sales"
-        }
+    db.DatasetInfoCollection.insert_one({
+        "_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
+        "name": "Sales Data 2023",
+        "description": "This dataset contains information about sales",
+        "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
+        "author": "John Sales",
+        "rowCount": 12500,
+        "columnCount": 24,
+        "size": 5242880,
+        "path": "/datasets/sales/dataset.csv",
+        "lastVersionNumber": 5,
+        "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
+        "lastModifiedBy": "Jane Sales"
     })
 
     db.DatasetActivity.insert_many([

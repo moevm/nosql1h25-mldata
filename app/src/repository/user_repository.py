@@ -3,7 +3,6 @@
 """
 import os
 import pymongo
-from bson import ObjectId   
 
 from app.src.models.user import User
 
@@ -20,6 +19,7 @@ try:
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
     db = None
+
 
 class UserRepository:
     """
