@@ -3,17 +3,28 @@ import os
 import bson
 import pymongo
 import datetime
-import uuid
 
 import matplotlib.pyplot as plt
+
+from pathlib import Path
+from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 
-uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
+
+env_path = Path(__file__).resolve().parent.parent / '.env'
+load_dotenv(env_path)
+
+user: str = os.getenv("MONGO_ROOT_USER")
+password: str = os.getenv("MONGO_ROOT_PASS")
+host: str = os.getenv("HOST")
+port: str = os.getenv("PORT")
+uri: str = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
+db_name: str = os.getenv("MONGO_DB_NAME")
 
 client = pymongo.MongoClient(uri)
 client.admin.command('ping')
 
-db = client.gakkle
+db = client[db_name]
 
 
 def add_examples() -> None:
@@ -215,6 +226,7 @@ def add_examples() -> None:
         "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
     })
 
+
 if __name__ == '__main__':
-    client.drop_database('gakkle')
+    client.drop_database(db_name)
     add_examples()

@@ -9,14 +9,6 @@ password: `0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd`
 login: `vasily`
 password: `AuQ5UIkdEiQ0tpH8`
 
-## Пример `.env` файла
-MONGO_ROOT_USER=root
-MONGO_ROOT_PASS=pass
-MONGO_DB_NAME=gakkle
-FLASK_SECRET_KEY=very_long_and_random_string_1234567890
-FLASK_DEBUG=1
-FLASK_LISTEN_PORT=5000
-
 ## Предварительная проверка заданий
 
 <a href=" ./../../../actions/workflows/1_helloworld.yml" >![1. Согласована и сформулирована тема курсовой]( ./../../actions/workflows/1_helloworld.yml/badge.svg)</a>
@@ -32,13 +24,3 @@ FLASK_LISTEN_PORT=5000
 <a href=" ./../../../actions/workflows/6_report.yml" >![6. Пояснительная записка]( ./../../actions/workflows/6_report.yml/badge.svg)</a>
 
 <a href=" ./../../../actions/workflows/7_app_is_ready.yml" >![7. App is ready]( ./../../actions/workflows/7_app_is_ready.yml/badge.svg)</a>
-
-## Пример `.env`
-```dotenv
-USR=user_n
-PWD=c33abbaa1a13q
-HOST=127.0.0.1
-PORT=27017
-DB_NAME=mlhub_n
-DATASET_DIR=./datasets
-```

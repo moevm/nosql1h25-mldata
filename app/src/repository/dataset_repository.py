@@ -23,15 +23,17 @@ db = None
 try:
     client.admin.command('ping')
     print("Successfully connected to MongoDB for DatasetRepository.")
-    db = client.gakkle
+    db_name = os.getenv('MONGO_DB_NAME')
+    db = client[db_name]
 except Exception as e:
     print(f"Error connecting to MongoDB for DatasetRepository: {e}")
+
 
 def get_db():
     """
     Геттер экземпляра БД
     """
-    db_name = os.getenv('DB_NAME')
+    db_name = os.getenv('MONGO_DB_NAME')
 
     dbase = getattr(g, db_name, None)
 
@@ -76,8 +78,10 @@ class DatasetRepository:
                 if doc.get("path"):
                     try:
                         ext = os.path.splitext(doc["path"])[1].lower()
-                        if ext == ".csv": dataset_type = "CSV"
-                        elif ext in [".jpg", ".png", ".svg"]: dataset_type = "Image"
+                        if ext == ".csv":
+                            dataset_type = "CSV"
+                        elif ext in [".jpg", ".png", ".svg"]:
+                            dataset_type = "Image"
                     except Exception:
                         pass
 
@@ -92,7 +96,6 @@ class DatasetRepository:
                 )
         except Exception as e:
             print(f"DatasetRepository: Error fetching dataset briefs from MongoDB: {e}")
-
 
         return briefs
 
