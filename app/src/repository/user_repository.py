@@ -15,7 +15,8 @@ db = None
 try:
     client.admin.command('ping')
     print("Successfully connected to MongoDB.")
-    db = client.gakkle
+    db_name = os.getenv('MONGO_DB_NAME')
+    db = client[db_name]
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
     db = None
