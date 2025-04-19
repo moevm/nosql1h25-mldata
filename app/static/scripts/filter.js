@@ -5,35 +5,54 @@ function setupFilters() {
     function applyFiltersAndSort() {
         const searchText = $('#name-filter').val().toLowerCase();
 
-        const sizeFrom = parseInt($('#data-size-from').val()) || 0;
-        const sizeTo = parseInt($('#data-size-to').val()) || Infinity;
+        let sizeFrom = parseInt($('#data-size-from').val()) || 0;
+        let sizeTo = parseInt($('#data-size-to').val()) || Infinity;
+        if (sizeTo < sizeFrom) sizeTo = Infinity;
 
-        const sortOrder = $('#data-size-sort').val();
+        let rowSizeFrom = parseInt($('#row-size-from').val()) || 0;
+        let rowSizeTo = parseInt($('#row-size-to').val()) || Infinity;
+        if (rowSizeTo < rowSizeFrom) rowSizeTo = Infinity;
 
         const filteredCards = $allCards.filter(function() {
             const $card = $(this);
 
             const cardName = $card.data('name').toLowerCase();
             const cardSize = parseInt($card.data('size')) || 0;
+            const cardRowSize = parseInt($card.data('row-size')) || 0;
 
             const nameMatch = searchText === '' || cardName.includes(searchText);
             const sizeMatch = cardSize >= sizeFrom && cardSize <= sizeTo;
+            const rowSizeMatch = cardRowSize >= rowSizeFrom && cardRowSize <= rowSizeTo;
 
-            return nameMatch && sizeMatch;
+            return nameMatch && sizeMatch && rowSizeMatch;
         });
 
-        const sortedCards = filteredCards.sort(function(a, b) {
-            const sizeA = parseInt($(a).data('size')) || 0;
-            const sizeB = parseInt($(b).data('size')) || 0;
+        const sortPriority = [
+            $('#data-size-sort').val(),
+            $('#row-size-sort').val()
+        ].filter(Boolean);
 
-            return sortOrder === 'asc' ? sizeA - sizeB : sizeB - sizeA;
+        const sortedCards = filteredCards.sort((a, b) => {
+            for (const sortType of sortPriority) {
+                const [field, order] = sortType.split('_');
+                const valueA = $(a).data(field);
+                const valueB = $(b).data(field);
+
+                if (valueA !== valueB) {
+                    return order === 'asc' ?
+                        (valueA - valueB) :
+                        (valueB - valueA);
+                }
+            }
+            return 0;
         });
 
         $cardsContainer.empty().append(sortedCards);
     }
 
-    $('#name-filter, #data-size-from, #data-size-to').on('input change', applyFiltersAndSort);
+    $('#name-filter, #data-size-from, #data-size-to, #row-size-from, #row-size-to').on('input change', applyFiltersAndSort);
     $('#data-size-sort').on('change', applyFiltersAndSort);
+    $('#row-size-sort').on('change', applyFiltersAndSort);
 
     applyFiltersAndSort();
 }
