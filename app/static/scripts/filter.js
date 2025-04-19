@@ -13,23 +13,30 @@ function setupFilters() {
         let rowSizeTo = parseInt($('#row-size-to').val()) || Infinity;
         if (rowSizeTo < rowSizeFrom) rowSizeTo = Infinity;
 
+        let viewsFrom = parseInt($('#views-from').val()) || 0;
+        let viewsTo = parseInt($('#views-to').val()) || Infinity;
+        if (viewsTo < viewsFrom) viewsTo = Infinity;
+
         const filteredCards = $allCards.filter(function() {
             const $card = $(this);
 
             const cardName = $card.data('name').toLowerCase();
             const cardSize = parseInt($card.data('size')) || 0;
             const cardRowSize = parseInt($card.data('row-size')) || 0;
+            const cardViews = parseInt($card.data('views')) || 0;
 
             const nameMatch = searchText === '' || cardName.includes(searchText);
             const sizeMatch = cardSize >= sizeFrom && cardSize <= sizeTo;
             const rowSizeMatch = cardRowSize >= rowSizeFrom && cardRowSize <= rowSizeTo;
+            const viewsMatch = cardViews >= viewsFrom && cardViews <= viewsTo;
 
-            return nameMatch && sizeMatch && rowSizeMatch;
+            return nameMatch && sizeMatch && rowSizeMatch && viewsMatch;
         });
 
         const sortPriority = [
             $('#data-size-sort').val(),
-            $('#row-size-sort').val()
+            $('#row-size-sort').val(),
+            $('#views-sort').val()
         ].filter(Boolean);
 
         const sortedCards = filteredCards.sort((a, b) => {
@@ -50,9 +57,10 @@ function setupFilters() {
         $cardsContainer.empty().append(sortedCards);
     }
 
-    $('#name-filter, #data-size-from, #data-size-to, #row-size-from, #row-size-to').on('input change', applyFiltersAndSort);
+    $('#name-filter, #data-size-from, #data-size-to, #row-size-from, #row-size-to, #views-from, #views-to').on('input change', applyFiltersAndSort);
     $('#data-size-sort').on('change', applyFiltersAndSort);
     $('#row-size-sort').on('change', applyFiltersAndSort);
+    $('#views-sort').on('change', applyFiltersAndSort);
 
     applyFiltersAndSort();
 }
