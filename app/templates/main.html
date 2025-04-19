@@ -38,40 +38,13 @@
                 </div>
             </div>
     
-            <!-- Data Size Filter -->
-            <div class="column">
-                <div class="ui segment">
-                    <div class="ui form">
-                        <div class="inline fields">
-                            <div class="field">
-                                <label>Количество обучающих данных</label>
-                            </div>
-                            <div class="two fields">
-                                <div class="field">
-                                    <input type="number" placeholder="От" min="0" id="data-size-from">
-                                </div>
-                                <div class="field">
-                                    <input type="number" placeholder="До" min="0" id="data-size-to">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <select class="ui dropdown" id="data-size-sort">
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
             <!-- Row Size Filter -->
             <div class="column">
                 <div class="ui segment">
                     <div class="ui form">
                         <div class="inline fields">
                             <div class="field">
-                                <label>Размер</label>
+                                <label>Количество обучающих данных</label>
                             </div>
                             <div class="two fields">
                                 <div class="field">
@@ -83,8 +56,37 @@
                             </div>
                             <div class="field">
                                 <select class="ui dropdown" id="row-size-sort">
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
+                                    <option value="">-</option>
+                                    <option value="row-size_asc">По возрастанию</option>
+                                    <option value="row-size_desc">По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Data Size Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Размер</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="data-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="data-size-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="data-size-sort">
+                                    <option value="">-</option>
+                                    <option value="size_asc">По возрастанию</option>
+                                    <option value="size_desc">По убыванию</option>
                                 </select>
                             </div>
                         </div>
@@ -110,8 +112,9 @@
                             </div>
                             <div class="field">
                                 <select class="ui dropdown" id="downloads-sort">
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
+                                    <option value="">-</option>
+                                    <option value="downloads_asc">По возрастанию</option>
+                                    <option value="downloads_desc">По убыванию</option>
                                 </select>
                             </div>
                         </div>
@@ -170,8 +173,9 @@
                             </div>
                             <div class="field">
                                 <select class="ui dropdown" id="views-sort">
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
+                                    <option value="">-</option>
+                                    <option value="views_asc">По возрастанию</option>
+                                    <option value="views_desc">По убыванию</option>
                                 </select>
                             </div>
                         </div>
@@ -181,12 +185,44 @@
         </div>
     
         <div class="ui three cards cards-container">
-            <a class="ui card" href="#">
+            <a class="ui card" href="#" data-name="Example 7" data-size="22" data-row-size="111" data-views="5000" data-downloads="5000">
+                <div class="content">
+                    <div class="header">Example 7</div>
+                    <div class="description">Delete me</div>
+                    <br>
+                    <div class="description">csv, 22 кбайт</div>
+                </div>
+            </a>
+            <a class="ui card" href="#" data-name="Example 1" data-size="22" data-row-size="222" data-views="4000" data-downloads="4000">
                 <div class="content">
                     <div class="header">Example 1</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 22 кбайт</div>
+                </div>
+            </a>
+            <a class="ui card" href="#" data-name="Example 2" data-size="33" data-row-size="333" data-views="3000" data-downloads="3000">
+                <div class="content">
+                    <div class="header">Example 2</div>
+                    <div class="description">Delete me</div>
+                    <br>
+                    <div class="description">csv, 33 кбайт</div>
+                </div>
+            </a>
+            <a class="ui card" href="#" data-name="Example 3" data-size="44" data-row-size="444" data-views="2000" data-downloads="2000">
+                <div class="content">
+                    <div class="header">Example 3</div>
+                    <div class="description">Delete me</div>
+                    <br>
+                    <div class="description">csv, 44 кбайт</div>
+                </div>
+            </a>
+            <a class="ui card" href="#" data-name="Another" data-size="55" data-row-size="555" data-views="1000" data-downloads="1000">
+                <div class="content">
+                    <div class="header">Another</div>
+                    <div class="description">Delete me</div>
+                    <br>
+                    <div class="description">csv, 55 кбайт</div>
                 </div>
             </a>
         </div>
@@ -200,5 +236,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+<script src="../static/scripts/filter.js"></script>
 </body>
 </html>
