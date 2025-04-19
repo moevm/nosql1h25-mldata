@@ -38,40 +38,13 @@
                 </div>
             </div>
     
-            <!-- Data Size Filter -->
-            <div class="column">
-                <div class="ui segment">
-                    <div class="ui form">
-                        <div class="inline fields">
-                            <div class="field">
-                                <label>Количество обучающих данных</label>
-                            </div>
-                            <div class="two fields">
-                                <div class="field">
-                                    <input type="number" placeholder="От" min="0" id="data-size-from">
-                                </div>
-                                <div class="field">
-                                    <input type="number" placeholder="До" min="0" id="data-size-to">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <select class="ui dropdown" id="data-size-sort">
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
             <!-- Row Size Filter -->
             <div class="column">
                 <div class="ui segment">
                     <div class="ui form">
                         <div class="inline fields">
                             <div class="field">
-                                <label>Размер</label>
+                                <label>Количество обучающих данных</label>
                             </div>
                             <div class="two fields">
                                 <div class="field">
@@ -85,6 +58,33 @@
                                 <select class="ui dropdown" id="row-size-sort">
                                     <option>По возрастанию</option>
                                     <option>По убыванию</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Data Size Filter -->
+            <div class="column">
+                <div class="ui segment">
+                    <div class="ui form">
+                        <div class="inline fields">
+                            <div class="field">
+                                <label>Размер</label>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" id="data-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" id="data-size-to">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <select class="ui dropdown" id="data-size-sort">
+                                    <option value="asc">По возрастанию</option>
+                                    <option value="desc">По убыванию</option>
                                 </select>
                             </div>
                         </div>
@@ -181,44 +181,44 @@
         </div>
     
         <div class="ui three cards cards-container">
-            <a class="ui card" href="#" data-name="Example 7">
+            <a class="ui card" href="#" data-name="Example 7" data-size="11">
                 <div class="content">
                     <div class="header">Example 7</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 11 кбайт</div>
                 </div>
             </a>
-            <a class="ui card" href="#" data-name="Example 1">
+            <a class="ui card" href="#" data-name="Example 1" data-size="22">
                 <div class="content">
                     <div class="header">Example 1</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 22 кбайт</div>
                 </div>
             </a>
-            <a class="ui card" href="#" data-name="Example 2">
+            <a class="ui card" href="#" data-name="Example 2" data-size="33">
                 <div class="content">
                     <div class="header">Example 2</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 33 кбайт</div>
                 </div>
             </a>
-            <a class="ui card" href="#" data-name="Example 3">
+            <a class="ui card" href="#" data-name="Example 3" data-size="44">
                 <div class="content">
                     <div class="header">Example 3</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 44 кбайт</div>
                 </div>
             </a>
-            <a class="ui card" href="#" data-name="Another example">
+            <a class="ui card" href="#" data-name="Another" data-size="55">
                 <div class="content">
-                    <div class="header">Another example</div>
+                    <div class="header">Another</div>
                     <div class="description">Delete me</div>
                     <br>
-                    <div class="description">csv, 22423 кбайт</div>
+                    <div class="description">csv, 55 кбайт</div>
                 </div>
             </a>
         </div>
