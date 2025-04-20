@@ -45,7 +45,10 @@
     </div>
 
     <div class="ui container padded-container">
-        <a class="ui secondary button" href="#">Скачать</a>
+        <a class="ui secondary button"
+           href="/dataset/download/{{ dataset_info.dataset_id }}">
+            Скачать
+        </a>
         <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
         <a class="ui negative button" href="#">Удалить</a>
         <a class="ui right floated button" href="/datasets/">Назад</a>
@@ -54,4 +57,6 @@
     <div class="ui divider"></div>
 
 </div>
+
+<script src="{{ url_for('static', filename='viewDataset.js') }}"></script>
 {% endblock %}
