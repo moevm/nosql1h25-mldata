@@ -1,10 +1,11 @@
 """
 Настраивает пути для endpoint'ов приложения. Сохраняет их в blueprint.
 """
+import os
 from typing import Union
 
 from flask import Blueprint, Response, request, send_from_directory, current_app, render_template
-from flask_login import login_required, current_user
+from flask_login import login_required
 from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
@@ -76,6 +77,7 @@ def download_dataset(dataset_id: str):
     if request.method != 'GET':
         return BadRequest('Invalid method')
 
+    dr = os.getcwd() + current_app.config['UPLOAD_FOLDER'][1:]
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], f'{dataset_id}.csv'
+       directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
