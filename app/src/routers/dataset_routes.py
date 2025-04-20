@@ -37,6 +37,12 @@ def add_dataset() -> Union[str, Response, BadRequest]:
     return BadRequest('Invalid method')
 
 
+@bp.route('/datasets/delete/<dataset_id>', methods=['DELETE'])
+def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
+    if request.method != 'DELETE':
+        return BadRequest('Invalid method')
+    return DatasetController.remove_dataset(dataset_id)
+
 @bp.route('/datasets/edit/<dataset_id>/', methods=['GET', 'PATCH'])
 def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
     """
