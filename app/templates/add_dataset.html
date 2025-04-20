@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+<a class="header item" href="/datasets/">Главная</a>
+<a class="header active item">Добавить датасет</a>
+<a class="header right item" href="#">Импорт/Экспорт</a>
+{% endblock %}
+
+{% block content %}
+<div class="ui text container padded-container">
+    <form class="ui form large" id="dataset-form" autocomplete="off">
+        <div class="required field">
+            <label>Название</label>
+            <input type="text" name="dataset-name" placeholder="Введите название датасета" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label>Описание</label>
+            <textarea name="dataset-description" maxlength="250" placeholder="Введите описание датасета"></textarea>
+        </div>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.css">
+
+        <div class="ui container" style="padding: 20px">
+            <input type="file" id="csvUpload" accept=".csv" hidden>
+            <label for="csvUpload" class="ui huge fluid primary button">
+            <i class="file csv outline icon"></i>
+            Загрузить csv файл
+            </label>
+        </div>
+    </form>
+    <div class="ui container padded-container">
+        <button class="ui secondary button" form="dataset-form">Сохранить</button>
+        <a class="ui button right floated" href="/datasets/">Отмена</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+
+<!--<script src="{{ url_for('static', filename='scripts/addDatasetScript.js') }}"></script>-->
+{% endblock %}

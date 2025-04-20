@@ -1,10 +1,9 @@
 """
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
-import json
 import os
 
-from flask import Request, Response, current_app, make_response, jsonify
+from flask import render_template, Request, Response, current_app, make_response, jsonify
 from werkzeug.datastructures import FileStorage
 
 from app.src.models.Dataset import Dataset
@@ -24,7 +23,7 @@ class DatasetController:
         Отображает страницу с полученными датасетами.
         """
         all_datasets_brief = DatasetService.get_all_datasets_brief()
-        return json.dumps([brief.to_dict() for brief in all_datasets_brief])
+        return render_template('all_datasets.html', datasets_brief=all_datasets_brief)
 
     @staticmethod
     def add_dataset(request: Request) -> Response:
@@ -51,6 +50,21 @@ class DatasetController:
         return response
 
     @staticmethod
+    def render_add_dataset() -> str:
+        """
+        Отображает страницу добавления датасета.
+        """
+        return render_template('add_dataset.html')
+
+    @staticmethod
+    def render_edit_dataset(dataset_id: str) -> str:
+        """
+        Обращается к методу сервиса для получения объекта Brief для датасета с индексом dataset_id.
+        """
+        dataset_brief: Dataset = DatasetService.get_dataset(dataset_id)
+        return render_template('edit_dataset.html', dataset_brief=dataset_brief)
+
+    @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
         Создается объект DatasetFormData из данных request'а.
@@ -74,12 +88,12 @@ class DatasetController:
         return response
 
     @staticmethod
-    def get_dataset(dataset_id: str):
+    def get_dataset(dataset_id: str) -> Dataset:
         """
-        Возвращается json, содержащий данные о датасете.
+        Возвращается структура, содержащая данные о датасете.
         """
         dataset: Dataset = DatasetService.get_dataset(dataset_id)
-        return jsonify(dataset.to_dict())
+        return dataset
 
     @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:

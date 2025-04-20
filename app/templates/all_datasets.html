@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+<a class="header active item">Главная</a>
+<a class="header right item" href="#">Импорт/Экспорт</a>
+{% endblock %}
+
+{% block content %}
+<div class="ui container padded-container">
+    <div class="ui text container">
+        <div class="ui transparent left icon input searchbar">
+            <input type="text" placeholder="Поиск...">
+            <i class="search icon"></i>
+        </div>
+        <div class="ui divider"></div>
+    </div>
+    <div class="ui three cards cards-container">
+        {% for brief in datasets_brief %}
+        <a class="ui card" href="/dataset/{{ brief.dataset_id }}/">
+            <div class="content">
+                <div class="header">{{ brief.dataset_name }}</div>
+                <div class="description">{{ brief.dataset_description }}</div>
+                <br>
+                <div class="description">{{ brief.dataset_type }}, {{ brief.dataset_size }} кбайт</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+<a class="circular ui icon button massive secondary add-button" href="/datasets/add/">
+    <i class="icon plus"></i>
+</a>
+{% endblock %}

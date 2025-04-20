@@ -6,6 +6,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 
+from bson import ObjectId
 from pathlib import Path
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
@@ -29,16 +30,16 @@ db = client[db_name]
 
 def add_examples() -> None:
     db.DatasetInfoCollection.insert_one({
-        "_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
-        "name": "Sales Data 2023",
-        "description": "This dataset contains information about sales",
+        "_id": ObjectId("1803082b13d60ef2435b14b3"),
+        "name": "Example dataset",
+        "description": "This dataset is used for debugging",
         "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
         "author": "John Sales",
-        "rowCount": 12500,
-        "columnCount": 24,
-        "size": 5242880,
-        "path": "/datasets/sales/dataset.csv",
-        "lastVersionNumber": 5,
+        "rowCount": 499,
+        "columnCount": 5000,
+        "size": 20302.19,
+        "path": "./datasets",
+        "lastVersionNumber": 1,
         "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
         "lastModifiedBy": "Jane Sales"
     })

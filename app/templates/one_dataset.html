@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+<a class="header item" href="/datasets/">Главная</a>
+<a class="header active item">{{ dataset_info.dataset_name }}</a>
+<a class="header right item" href="#">Импорт/Экспорт</a>
+{% endblock %}
+
+{% block content %}
+<div class="ui container padded-container">
+    <h1 class="ui header">{{ dataset_info.dataset_name }}</h1>
+    <div class="ui two column grid">
+        <div class="column">
+            <div class="ui segment">
+                <div class="ui header">Описание</div>
+                {% if dataset_info.dataset_description != '' %}
+                <p>{{ dataset_info.dataset_description }}</p>
+                {% else %}
+                <p>(Без описания)</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="column">
+            <div class="ui segment">
+                <div class="ui header">Характеристики</div>
+                <ul>
+                    <li>Размер файла: {{ dataset_info.dataset_size }} кбайт</li>
+                    <li>Количество столбцов: {{ dataset_info.dataset_columns }}</li>
+                    <li>Количество записей: {{ dataset_info.dataset_rows }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui container padded-container">
+        <a class="ui secondary button" href="#">Скачать</a>
+        <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
+        <a class="ui negative button" href="#">Удалить</a>
+        <a class="ui right floated button" href="/datasets/">Назад</a>
+    </div>
+
+    <div class="ui divider"></div>
+
+</div>
+{% endblock %}

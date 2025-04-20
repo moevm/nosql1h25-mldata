@@ -68,23 +68,12 @@ class DatasetRepository:
             cursor = db.DatasetInfoCollection.find()
             datasets_info: list[dict[str, Any]] = [doc for doc in cursor]
             for doc in datasets_info:
-                dataset_type = "Unknown"
-                if doc.get("path"):
-                    try:
-                        ext = os.path.splitext(doc["path"])[1].lower()
-                        if ext == ".csv":
-                            dataset_type = "CSV"
-                        elif ext in [".jpg", ".png", ".svg"]:
-                            dataset_type = "Image"
-                    except Exception:
-                        pass
-
                 briefs.append(
                     DatasetBrief(
                         dataset_id=str(doc.get('_id')),
                         dataset_name=doc.get('name', 'N/A'),
                         dataset_description=doc.get('description', ''),
-                        dataset_type=dataset_type,
+                        dataset_type="CSV",
                         dataset_size=doc.get('size', 0)
                     )
                 )
