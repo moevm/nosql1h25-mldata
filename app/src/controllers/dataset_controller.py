@@ -3,7 +3,8 @@
 """
 import os
 
-from flask import render_template, Request, Response, current_app, make_response, jsonify
+from flask import render_template, Request, Response, current_app, make_response
+from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
 from app.src.models.Dataset import Dataset
@@ -33,7 +34,7 @@ class DatasetController:
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
-        username = 'username'
+        username = current_user.username
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
