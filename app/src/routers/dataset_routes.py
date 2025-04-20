@@ -77,7 +77,7 @@ def download_dataset(dataset_id: str):
     if request.method != 'GET':
         return BadRequest('Invalid method')
 
-    dr = os.getcwd() + current_app.config['UPLOAD_FOLDER'][1:]
+    dr = os.getcwd() + current_app.config['UPLOAD_FOLDER'][1:]  # slice: ./dir_name => dir_name
     return send_from_directory(
        directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
