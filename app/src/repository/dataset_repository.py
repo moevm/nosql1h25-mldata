@@ -108,7 +108,7 @@ class DatasetRepository:
         """
         collection = db['DatasetInfoCollection']
 
-        dataset = collection.find_one({'_id': ObjectId(dataset_id)})
+        dataset = collection.find_one({'_id': dataset_id})
         if dataset is None:
             raise Exception(f'Element with {dataset_id} not found')
 

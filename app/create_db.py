@@ -233,15 +233,35 @@ def add_examples() -> None:
     plt.savefig('test.svg')
 
     with open('test.svg', 'rb') as f:
-        db.DatasetGraphs.insert_one({
-            "_id": "b2c3nmn5-f6v7-8g10-hle2-j314l5m5n7o8",
-            "graphs": [
-                {
-                    "name": "Январь",
-                    "data": bson.Binary(f.read())
-                }
-            ]
-        })
+        db.DatasetGraphs.insert_many([
+            {
+                "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+                "graphs": [
+                    {
+                        "name": "Январь",
+                        "data": bson.Binary(f.read())
+                    }
+                ]
+            },
+            {
+                "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+                "graphs": [
+                    {
+                        "name": "Январь",
+                        "data": bson.Binary(f.read())
+                    }
+                ]
+            },
+            {
+                "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+                "graphs": [
+                    {
+                        "name": "Январь",
+                        "data": bson.Binary(f.read())
+                    }
+                ]
+            }
+        ])
 
     db.User.insert_one({
         "_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1",
