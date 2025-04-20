@@ -2,7 +2,7 @@
 Настраивает пути для endpoint'ов приложения. Сохраняет их в blueprint.
 """
 import os
-from typing import Union
+import pandas as pd
 
 from flask import Blueprint, Response, request, send_from_directory, current_app, render_template
 from flask_login import login_required
@@ -25,7 +25,7 @@ def get_datasets() -> str:
 
 
 @bp.route('/datasets/add/', methods=['GET', 'POST'])
-def add_dataset() -> Union[str, Response, BadRequest]:
+def add_dataset() -> str | Response | BadRequest:
     """
     Обращается к методам контроллера:
         POST - для добавления датасета в БД. Информация о датасете содержится в передаваемом request.
@@ -43,8 +43,9 @@ def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
         return BadRequest('Invalid method')
     return DatasetController.remove_dataset(dataset_id)
 
+
 @bp.route('/datasets/edit/<dataset_id>/', methods=['GET', 'PATCH'])
-def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
+def edit_dataset(dataset_id: str) -> str | Response | BadRequest:
     """
     Обращается к методам контроллера:
         PATCH - для изменения датасета в БД
@@ -58,7 +59,7 @@ def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
 
 
 @bp.route('/dataset/<dataset_id>/', methods=['GET'])
-def get_dataset(dataset_id: str) -> Union[str, BadRequest]:
+def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
     """
     Обращается к методам контроллера:
         GET - получения датасета из БД
@@ -68,9 +69,35 @@ def get_dataset(dataset_id: str) -> Union[str, BadRequest]:
 
     try:
         dataset_info: Dataset = DatasetController.get_dataset(dataset_id)
-        return render_template('one_dataset.html', dataset_info=dataset_info)
+        filepath: str = f'{dataset_info.dataset_path}/{dataset_info.dataset_id}.csv'
+
+        max_cols_num: int = int(os.getenv('MAX_COLS_NUM'))
+        max_rows_num: int = int(os.getenv('MAX_ROWS_NUM'))
+
+        df = pd.read_csv(filepath, nrows=max_rows_num, usecols=range(min(dataset_info.dataset_columns, max_cols_num)))
+
+        if dataset_info.dataset_columns > max_cols_num:
+            df['...'] = '...'
+
+        headers = df.columns.tolist()
+        rows = df.values.tolist()
+
+        if dataset_info.dataset_rows > max_rows_num:
+            rows.append(['...'] * min(dataset_info.dataset_columns, max_cols_num))
+
+        return render_template(
+            'one_dataset.html',
+            dataset_info=dataset_info,
+            headers=headers,
+            rows=rows,
+            max_cols_num=max_cols_num,
+        )
+
+    except FileNotFoundError:
+        return "CSV file not found on server", 404
+
     except Exception:
-        return BadRequest('Item can\'t be found')
+        return "Something went wrong", 500
 
 
 @bp.route('/dataset/download/<dataset_id>', methods=['GET'])
