@@ -29,24 +29,54 @@ db = client[db_name]
 
 
 def add_examples() -> None:
-    db.DatasetInfoCollection.insert_one({
-        "_id": ObjectId("1803082b13d60ef2435b14b3"),
-        "name": "Example dataset",
-        "description": "This dataset is used for debugging",
-        "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
-        "author": "John Sales",
-        "rowCount": 499,
-        "columnCount": 5000,
-        "size": 20302.19,
-        "path": "./datasets",
-        "lastVersionNumber": 1,
-        "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
-        "lastModifiedBy": "Jane Sales"
-    })
+    db.DatasetInfoCollection.insert_many([
+        {
+            "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+            "name": "Example dataset 1",
+            "description": "This dataset is used for debugging",
+            "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
+            "author": "John Sales",
+            "rowCount": 499,
+            "columnCount": 5000,
+            "size": 20302.19,
+            "path": "./datasets",
+            "lastVersionNumber": 1,
+            "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
+            "lastModifiedBy": "Jane Sales"
+        },
+        {
+            "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+            "name": "Example dataset 2",
+            "description": "This dataset is used for debugging",
+            "creationDate": datetime.datetime(2021, 7, 15, 9, 30, 45),
+            "author": "John Sales",
+            "rowCount": 300,
+            "columnCount": 5000,
+            "size": 4736,
+            "path": "./datasets",
+            "lastVersionNumber": 1,
+            "lastModifiedDate": datetime.datetime(2021, 9, 20, 14, 15, 22),
+            "lastModifiedBy": "Jane Sales"
+        },
+        {
+            "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+            "name": "Another dataset 3",
+            "description": "This dataset is used for debugging",
+            "creationDate": datetime.datetime(2022, 7, 15, 9, 30, 45),
+            "author": "John Sales",
+            "rowCount": 1,
+            "columnCount": 5000,
+            "size": 1,
+            "path": "./datasets",
+            "lastVersionNumber": 1,
+            "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
+            "lastModifiedBy": "Jane Sales"
+        }
+    ])
 
     db.DatasetActivity.insert_many([
         {
-            "_id": "b2c3d4e5-f6g7-8910-h1i2-j3k4l5m6n7o8",
+            "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
             "statistics": {
                 "2023-10-01": {
                     "views": 42,
@@ -169,7 +199,33 @@ def add_examples() -> None:
                     "downloads": 21
                 }
             }
-        }
+        },
+        {
+            "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+            "statistics": {
+                "2023-10-01": {
+                    "views": 42,
+                    "downloads": 799
+                },
+                "2023-10-02": {
+                    "views": 6668,
+                    "downloads": 5
+                }
+            }
+        },
+        {
+            "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+            "statistics": {
+                "2023-10-01": {
+                    "views": 42,
+                    "downloads": 799
+                },
+                "2023-10-02": {
+                    "views": 6668,
+                    "downloads": 5
+                }
+            }
+        },
     ])
 
     plt.plot([1, 2, 3, 4])
