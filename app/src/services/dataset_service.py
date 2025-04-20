@@ -48,3 +48,7 @@ class DatasetService:
     @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
         return DatasetRepository.get_dataset(dataset_id)
+
+    @staticmethod
+    def remove_dataset(dataset_id: str) -> None:
+        return DatasetRepository.remove_dataset(dataset_id)
