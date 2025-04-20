@@ -66,6 +66,22 @@ class DatasetController:
         return render_template('edit_dataset.html', dataset_brief=dataset_brief)
 
     @staticmethod
+    def remove_dataset(dataset_id: str) -> Response:
+        """
+        Обращается к методу сервиса для удаления объекта датасета с индексом dataset_id.
+        """
+        DatasetService.remove_dataset(dataset_id)
+
+        filepath: str = current_app.config['UPLOAD_FOLDER']
+        filepath = os.path.join(filepath, f'{dataset_id}.csv')
+        os.remove(filepath)
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/{dataset_id}'
+        return response
+
+
+    @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
         Создается объект DatasetFormData из данных request'а.
