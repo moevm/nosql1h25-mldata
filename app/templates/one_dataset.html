@@ -40,6 +40,39 @@
     </div>
 
     <div class="ui divider"></div>
+</div>
 
+<div class="table-wrapper">
+    <div class="table-container">
+        <table class="data-table">
+            {% if dataset_info.dataset_columns > max_cols_num %}
+            <h3>{{ 'В датасете слишком много столбцов (' ~ dataset_info.dataset_columns ~ '). В таблице отобразятся первые ' ~ max_cols_num}}</h3>
+            {% endif %}
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="image-row">
+                    {% for header in headers %}
+                    <td></td>
+                    {% endfor %}
+                </tr>
+
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
