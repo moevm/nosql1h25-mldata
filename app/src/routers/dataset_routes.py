@@ -3,16 +3,17 @@
 """
 from typing import Union
 
-from flask import Blueprint, Response, request, send_from_directory, current_app
+from flask import Blueprint, Response, request, send_from_directory, current_app, render_template
 from flask_login import login_required, current_user
 from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
+from app.src.models import Dataset
 
 bp: Blueprint = Blueprint('datasets', __name__)
 
 
-@bp.route('/datasets', methods=['GET'])
+@bp.route('/datasets', methods=['GET'], strict_slashes=False)
 @login_required
 def get_datasets() -> str:
     """
@@ -22,7 +23,7 @@ def get_datasets() -> str:
     return DatasetController.render_all_datasets()
 
 
-@bp.route('/datasets/add/', methods=['POST'])
+@bp.route('/datasets/add/', methods=['GET', 'POST'])
 def add_dataset() -> Union[str, Response, BadRequest]:
     """
     Обращается к методам контроллера:
@@ -30,10 +31,12 @@ def add_dataset() -> Union[str, Response, BadRequest]:
     """
     if request.method == 'POST':
         return DatasetController.add_dataset(request)
+    elif request.method == 'GET':
+        return DatasetController.render_add_dataset()
     return BadRequest('Invalid method')
 
 
-@bp.route('/datasets/edit/<dataset_id>/', methods=['PATCH'])
+@bp.route('/datasets/edit/<dataset_id>/', methods=['GET', 'PATCH'])
 def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
     """
     Обращается к методам контроллера:
@@ -41,6 +44,9 @@ def edit_dataset(dataset_id: str) -> Union[str, Response, BadRequest]:
     """
     if request.method == 'PATCH':
         return DatasetController.edit_dataset(dataset_id, request)
+    elif request.method == 'GET':
+        return DatasetController.render_edit_dataset(dataset_id)
+
     raise BadRequest('Invalid method')
 
 
@@ -54,7 +60,8 @@ def get_dataset(dataset_id: str) -> Union[str, BadRequest]:
         return BadRequest('Invalid method')
 
     try:
-        return DatasetController.get_dataset(dataset_id)
+        dataset_info: Dataset = DatasetController.get_dataset(dataset_id)
+        return render_template('one_dataset.html', dataset_info=dataset_info)
     except Exception:
         return BadRequest('Item can\'t be found')
 
