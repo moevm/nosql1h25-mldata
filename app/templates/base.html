@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gakkle</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+</head>
+<body>
+<div class="ui container">
+    <h1 class="logo">
+        <i class="ui icon crow"></i>Gakkle
+    </h1>
+    <div class="ui secondary pointing menu">
+        {% block menu %}{% endblock %}
+    </div>
+
+</div>
+
+{% block content %}{% endblock %}
+
+{% block extra %}{% endblock %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+</body>
+</html>
