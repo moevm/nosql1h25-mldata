@@ -7,13 +7,19 @@
 
 {% block content %}
 <div class="ui container padded-container">
-    <div class="ui text container">
-        <div class="ui transparent left icon input searchbar">
-            <input type="text" placeholder="Поиск...">
-            <i class="search icon"></i>
+    <form id="filter-form">
+        <div class="ui text container">
+            <div class="ui transparent left icon input searchbar">
+                <input type="text" name="filter-name" placeholder="Поиск...">
+                <i class="search icon"></i>
+            </div>
+            <div class="ui divider"></div>
         </div>
-        <div class="ui divider"></div>
-    </div>
+    </form>
+
+    <button id="fiter-button" class="ui secondary button" form="filter-form">Подтвердить</button>
+    <div class="ui divider"></div>
+
     <div class="ui three cards cards-container">
         {% for brief in datasets_brief %}
         <a class="ui card" href="/dataset/{{ brief.dataset_id }}/">
