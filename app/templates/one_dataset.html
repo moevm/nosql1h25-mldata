@@ -50,7 +50,9 @@
             Скачать
         </a>
         <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
-        <a class="ui negative button" href="#">Удалить</a>
+        <a class="ui negative button" onclick="deleteDataset('{{ dataset_info.dataset_id }}')" href="/datasets/">
+            Удалить
+        </a>
         <a class="ui right floated button" href="/datasets/">Назад</a>
     </div>
 
