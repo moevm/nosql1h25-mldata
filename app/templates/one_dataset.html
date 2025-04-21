@@ -33,8 +33,8 @@
                     <li>Дата создания: {{ dataset_info.dataset_creation_date }}</li>
                     <li>Текущая версия: {{ dataset_info.dataset_version }}</li>
 
-                    {% if dataset_info.last_editor != '' and dataset_info.last_editor %}
-                    <li>Последний редактор: {{ dataset_info.last_editor }}</li>
+                    {% if dataset_info.dataset_last_editor %}
+                    <li>Последний редактор: {{ dataset_info.dataset_last_editor }}</li>
                     {% endif %}
                     {% if dataset_info.dataset_last_update %}
                     <li>Последнее обновление: {{ dataset_info.dataset_last_update }}</li>
