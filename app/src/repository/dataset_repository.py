@@ -82,10 +82,13 @@ class DatasetRepository:
         return briefs
 
     @staticmethod
-    def add_dataset(dataset: Dataset) -> ObjectId:
+    def add_dataset(dataset: Dataset) -> str:
         """
         Добавляет датасет в БД.
         """
+        # потенциально может случиться такое, что uuid нагенерит два одинаковых id
+        # и тут из-за этого все упадет
+        # надо обернуть в try-catch и в блоке catch перегенерить id
         inserted: InsertOneResult = db['DatasetInfoCollection'].insert_one(dataset.to_dict())
         return inserted.inserted_id
 
@@ -95,7 +98,7 @@ class DatasetRepository:
         Изменяет датасет в БД.
         """
         db['DatasetInfoCollection'].update_one(
-            {'_id': ObjectId(dataset.dataset_id)},
+            {'_id': dataset.dataset_id},
             {'$set': dataset.to_dict()}
         )
 
@@ -107,24 +110,14 @@ class DatasetRepository:
         """
         collection = db['DatasetInfoCollection']
 
-        dataset = collection.find_one({'_id': ObjectId(dataset_id)})
+        dataset = collection.find_one({'_id': dataset_id})
         if dataset is None:
             raise Exception(f'Element with {dataset_id} not found')
 
-        info: Dataset = Dataset(
-            dataset_id,
-            dataset['name'],
-            dataset['description'],
-            dataset['creationDate'],
-            dataset['author'],
-            dataset['rowCount'],
-            dataset['columnCount'],
-            dataset['size'],
-            dataset['lastVersionNumber'],
-            dataset['lastModifiedDate'],
-            dataset['path'],
-            dataset['lastModifiedBy']
-        )
+        info: Dataset = Dataset(dataset_id, dataset['name'], dataset['description'], dataset['creationDate'],
+                                dataset['author'], dataset['rowCount'], dataset['columnCount'], dataset['size'],
+                                dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
+                                dataset['lastModifiedBy'])
         return info
 
     @staticmethod
@@ -133,5 +126,5 @@ class DatasetRepository:
         Удаляет датасет из БД.
         """
         db['DatasetInfoCollection'].delete_one(
-            {'_id': ObjectId(dataset_id)},
+            {'_id': dataset_id},
         )
