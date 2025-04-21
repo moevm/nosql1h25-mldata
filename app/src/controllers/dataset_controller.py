@@ -34,7 +34,10 @@ class DatasetController:
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
-        username = current_user.username
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
@@ -80,7 +83,6 @@ class DatasetController:
         response.headers['redirect'] = f'/datasets/{dataset_id}'
         return response
 
-
     @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
@@ -90,7 +92,10 @@ class DatasetController:
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
 
-        username = 'username'
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
         filepath: str = current_app.config['UPLOAD_FOLDER']
@@ -98,7 +103,7 @@ class DatasetController:
         with open(filepath, 'w') as file:
             file.writelines(form_values.dataset_data)
 
-        DatasetService.update_dataset(dataset_id, form_values, author=username, filepath=filepath)
+        DatasetService.update_dataset(dataset_id, form_values, editor=username, filepath=filepath)
 
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/{dataset_id}'
