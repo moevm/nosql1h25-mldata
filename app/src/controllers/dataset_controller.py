@@ -2,6 +2,7 @@
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
 import os
+from pathlib import PosixPath, Path
 
 from flask import render_template, Request, Response, current_app, make_response
 from flask_login import current_user
@@ -77,7 +78,7 @@ class DatasetController:
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
         filepath = os.path.join(filepath, f'{dataset_id}.csv')
-        os.remove(filepath)
+        PosixPath(filepath).unlink()
 
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/{dataset_id}'
