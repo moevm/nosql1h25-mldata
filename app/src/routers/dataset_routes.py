@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
 from app.src.models import Dataset
+from app.src.util.decorators import admin_required
 
 bp: Blueprint = Blueprint('datasets', __name__)
 
@@ -25,6 +26,7 @@ def get_datasets() -> str:
 
 
 @bp.route('/datasets/add/', methods=['GET', 'POST'])
+@login_required
 def add_dataset() -> str | Response | BadRequest:
     """
     Обращается к методам контроллера:
@@ -45,6 +47,7 @@ def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
 
 
 @bp.route('/datasets/edit/<dataset_id>/', methods=['GET', 'PATCH'])
+@login_required
 def edit_dataset(dataset_id: str) -> str | Response | BadRequest:
     """
     Обращается к методам контроллера:
@@ -59,6 +62,7 @@ def edit_dataset(dataset_id: str) -> str | Response | BadRequest:
 
 
 @bp.route('/dataset/<dataset_id>/', methods=['GET'])
+@login_required
 def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
     """
     Обращается к методам контроллера:
@@ -101,6 +105,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
 
 
 @bp.route('/dataset/download/<dataset_id>', methods=['GET'])
+@login_required
 def download_dataset(dataset_id: str):
     """
     Обращается к методам контроллера:
