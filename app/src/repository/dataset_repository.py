@@ -132,7 +132,6 @@ class DatasetRepository:
         """
         Удаляет датасет из БД.
         """
-        print("--------", dataset_id)
         db['DatasetInfoCollection'].delete_one(
             {'_id': ObjectId(dataset_id)},
         )
