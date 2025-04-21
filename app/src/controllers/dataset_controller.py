@@ -103,10 +103,11 @@ class DatasetController:
         with open(filepath, 'w') as file:
             file.writelines(form_values.dataset_data)
 
-        DatasetService.update_dataset(dataset_id, form_values, editor=username, filepath=filepath)
+        DatasetService.update_dataset(dataset_id, form_values, editor=username,
+                                      filepath=current_app.config['UPLOAD_FOLDER'])
 
         response: Response = make_response()
-        response.headers['redirect'] = f'/datasets/{dataset_id}'
+        response.headers['redirect'] = f'/datasets/'
         return response
 
     @staticmethod
