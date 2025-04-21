@@ -43,6 +43,8 @@ function editDataset(datasetId) {
 }
 
 function deleteDataset(datasetId) {
+    event.preventDefault();
+
     fetch(DELETE_URL + datasetId, {
         method: 'DELETE',
         redirect: 'follow'
