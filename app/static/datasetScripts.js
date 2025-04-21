@@ -5,6 +5,7 @@ const ADD_URL = MAIN_PAGE + "/add/";
 const EDIT_URL = MAIN_PAGE + "/edit/";
 
 function addDataset() {
+    event.preventDefault();
     const form = document.getElementById('dataset-form');
     const formData = new FormData(form);
 
@@ -15,7 +16,6 @@ function addDataset() {
         if (!response.ok)
             throw new Error('Response is not ok');
         document.location.href = MAIN_PAGE;
-        console.log(document.location.href);
     })
         .catch(error => {
             console.error('Error:', error);
@@ -23,6 +23,8 @@ function addDataset() {
 }
 
 function editDataset(datasetId) {
+    event.preventDefault();
+
     const form = document.getElementById('dataset-form');
     const formData = new FormData(form);
 
