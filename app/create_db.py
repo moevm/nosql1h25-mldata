@@ -30,7 +30,7 @@ db = client[db_name]
 
 def add_examples() -> None:
     db.DatasetInfoCollection.insert_one({
-        "_id": ObjectId("1803082b13d60ef2435b14b3"),
+        "_id": "b2c3d4e5-f6g7-8910-h1i2-j3k4l5m6n7o8",
         "name": "Example dataset",
         "description": "This dataset is used for debugging",
         "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
