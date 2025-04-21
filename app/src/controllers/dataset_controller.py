@@ -98,10 +98,12 @@ class DatasetController:
             username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
-        filepath: str = current_app.config['UPLOAD_FOLDER']
-        filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
-        with open(filepath, 'w') as file:
-            file.writelines(form_values.dataset_data)
+
+        if request.files['dataset']:
+            filepath: str = current_app.config['UPLOAD_FOLDER']
+            filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
+            with open(filepath, 'w') as file:
+                file.writelines(form_values.dataset_data)
 
         DatasetService.update_dataset(dataset_id, form_values, editor=username,
                                       filepath=current_app.config['UPLOAD_FOLDER'])

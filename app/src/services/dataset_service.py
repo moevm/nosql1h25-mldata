@@ -38,6 +38,11 @@ class DatasetService:
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
 
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_author, filepath)
+        if not form_values.dataset_data:
+            dataset.dataset_columns = old_dataset.dataset_columns
+            dataset.dataset_rows = old_dataset.dataset_rows
+            dataset.dataset_size = old_dataset.dataset_size
+
         dataset.dataset_id = old_dataset.dataset_id
         dataset.dataset_creation_date = old_dataset.dataset_creation_date
         dataset.dataset_version = old_dataset.dataset_version + 1
