@@ -43,7 +43,7 @@ class Dataset:
         self.dataset_last_editor: str = dataset_last_editor
 
     @classmethod
-    def from_form_values(cls, form_values: DatasetFormValues, author: str, filepath: str):
+    def from_form_values(cls, form_values: DatasetFormValues, dataset_id: str, author: str, filepath: str):
         """
         Альтернативный конструктор для создания класса из `DatasetFormValues` и дополнительных аргументов
         """
@@ -53,12 +53,17 @@ class Dataset:
         dataset_path: str = filepath
         dataset_version: int = 1
 
-        df: pd.DataFrame = pd.read_csv(StringIO(form_values.dataset_data))
-        dataset_rows: int = df.shape[0]
-        dataset_columns: int = df.shape[1]
-        dataset_size: float = round(len(form_values.dataset_data.encode()) / 1024, 2)
+        if form_values.dataset_data:
+            df: pd.DataFrame = pd.read_csv(StringIO(form_values.dataset_data))
+            dataset_rows: int = df.shape[0]
+            dataset_columns: int = df.shape[1]
+            dataset_size: float = round(len(form_values.dataset_data.encode()) / 1024, 2)
+        else:
+            dataset_rows: int = 0
+            dataset_columns: int = 0
+            dataset_size: float = 0
 
-        return cls('-1',
+        return cls(dataset_id,
                    form_values.dataset_name, form_values.dataset_description,
                    dataset_creation_date, author, dataset_rows,
                    dataset_columns, dataset_size, dataset_version,
@@ -69,6 +74,7 @@ class Dataset:
         Метод для представления объекта класса в виде словаря.
         """
         return {
+            '_id':               self.dataset_id,
             'name':              self.dataset_name,
             'description':       self.dataset_description,
             'creationDate':      self.dataset_creation_date,

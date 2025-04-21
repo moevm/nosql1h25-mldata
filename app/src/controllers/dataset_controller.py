@@ -2,8 +2,10 @@
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
 import os
+from pathlib import PosixPath, Path
 
-from flask import render_template, Request, Response, current_app, make_response, jsonify
+from flask import render_template, Request, Response, current_app, make_response
+from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
 from app.src.models.Dataset import Dataset
@@ -33,7 +35,10 @@ class DatasetController:
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
-        username = 'username'
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
@@ -65,6 +70,21 @@ class DatasetController:
         return render_template('edit_dataset.html', dataset_brief=dataset_brief)
 
     @staticmethod
+    def remove_dataset(dataset_id: str) -> Response:
+        """
+        Обращается к методу сервиса для удаления объекта датасета с индексом dataset_id.
+        """
+        DatasetService.remove_dataset(dataset_id)
+
+        filepath: str = current_app.config['UPLOAD_FOLDER']
+        filepath = os.path.join(filepath, f'{dataset_id}.csv')
+        PosixPath(filepath).unlink()
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/{dataset_id}'
+        return response
+
+    @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
         Создается объект DatasetFormData из данных request'а.
@@ -73,18 +93,24 @@ class DatasetController:
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
 
-        username = 'username'
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
-        filepath: str = current_app.config['UPLOAD_FOLDER']
-        filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
-        with open(filepath, 'w') as file:
-            file.writelines(form_values.dataset_data)
 
-        DatasetService.update_dataset(dataset_id, form_values, author=username, filepath=filepath)
+        if request.files['dataset']:
+            filepath: str = current_app.config['UPLOAD_FOLDER']
+            filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
+            with open(filepath, 'w') as file:
+                file.writelines(form_values.dataset_data)
+
+        DatasetService.update_dataset(dataset_id, form_values, editor=username,
+                                      filepath=current_app.config['UPLOAD_FOLDER'])
 
         response: Response = make_response()
-        response.headers['redirect'] = f'/datasets/{dataset_id}'
+        response.headers['redirect'] = f'/datasets/'
         return response
 
     @staticmethod

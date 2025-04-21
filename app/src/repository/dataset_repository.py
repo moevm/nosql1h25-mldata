@@ -16,7 +16,6 @@ from werkzeug.local import LocalProxy
 from app.src.models.Dataset import Dataset
 from app.src.models.DatasetBrief import DatasetBrief
 
-
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=5000)
@@ -83,10 +82,13 @@ class DatasetRepository:
         return briefs
 
     @staticmethod
-    def add_dataset(dataset: Dataset) -> ObjectId:
+    def add_dataset(dataset: Dataset) -> str:
         """
         Добавляет датасет в БД.
         """
+        # потенциально может случиться такое, что uuid нагенерит два одинаковых id
+        # и тут из-за этого все упадет
+        # надо обернуть в try-catch и в блоке catch перегенерить id
         inserted: InsertOneResult = db['DatasetInfoCollection'].insert_one(dataset.to_dict())
         return inserted.inserted_id
 
@@ -96,7 +98,7 @@ class DatasetRepository:
         Изменяет датасет в БД.
         """
         db['DatasetInfoCollection'].update_one(
-            {'_id': ObjectId(dataset.dataset_id)},
+            {'_id': dataset.dataset_id},
             {'$set': dataset.to_dict()}
         )
 
@@ -112,18 +114,17 @@ class DatasetRepository:
         if dataset is None:
             raise Exception(f'Element with {dataset_id} not found')
 
-        info: Dataset = Dataset(
-            dataset_id,
-            dataset['name'],
-            dataset['description'],
-            dataset['creationDate'],
-            dataset['author'],
-            dataset['rowCount'],
-            dataset['columnCount'],
-            dataset['size'],
-            dataset['lastVersionNumber'],
-            dataset['lastModifiedDate'],
-            dataset['path'],
-            dataset['lastModifiedBy']
-        )
+        info: Dataset = Dataset(dataset_id, dataset['name'], dataset['description'], dataset['creationDate'],
+                                dataset['author'], dataset['rowCount'], dataset['columnCount'], dataset['size'],
+                                dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
+                                dataset['lastModifiedBy'])
         return info
+
+    @staticmethod
+    def remove_dataset(dataset_id: str) -> None:
+        """
+        Удаляет датасет из БД.
+        """
+        db['DatasetInfoCollection'].delete_one(
+            {'_id': dataset_id},
+        )

@@ -11,30 +11,34 @@
     <form class="ui form large" id="dataset-form" autocomplete="off">
         <div class="required field">
             <label>Название</label>
-            <input type="text" name="dataset-name" placeholder="Введите название датасета" value="{{dataset_brief.dataset_name}}"
+            <input type="text" name="name" placeholder="Введите название датасета"
+                   value="{{dataset_brief.dataset_name}}"
                    maxlength="50" required>
         </div>
         <div class="field">
             <label>Описание</label>
-            <textarea name="dataset-description" maxlength="250"
+            <textarea name="description" maxlength="250"
                       placeholder="Введите описание датасета">{{dataset_brief.dataset_description}}</textarea>
+        </div>
+        <div class="ui container" style="padding: 20px">
+            <input type="file" name="dataset" id="csvUpload" accept=".csv" hidden>
+            <label for="csvUpload" class="ui huge fluid primary button">
+                <i class="file csv outline icon"></i>
+                Загрузить CSV файл
+            </label>
         </div>
     </form>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.css">
 
-    <div class="ui container" style="padding: 20px">
-    <input type="file" id="csvUpload" accept=".csv" hidden>
-
-    <label for="csvUpload" class="ui huge fluid primary button">
-        <i class="file csv outline icon"></i>
-        Загрузить CSV файл
-    </label>
-    </div>
     <div class="ui container padded-container">
-        <button class="ui secondary button" form="dataset-form">Сохранить</button>
+        <button class="ui secondary button" form="dataset-form" onclick="editDataset('{{ dataset_brief.dataset_id }}')">
+            Сохранить
+        </button>
         <a class="ui button right floated" href="/dataset/{{ dataset_brief.dataset_id }}/">Отмена</a>
     </div>
 </div>
+
+<script src="{{ url_for('static', filename='datasetScripts.js') }}"></script>
 {% endblock %}
 
 {% block extra %}

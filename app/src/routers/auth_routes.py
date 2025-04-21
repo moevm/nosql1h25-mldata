@@ -34,7 +34,7 @@ def login():
 
         if not login_attempt or not password_attempt:
              flash('Требуется логин и пароль', 'warning')
-             return render_template_string('auth/login.html'), 400
+             return render_template('auth/login.html'), 400
 
         user = UserRepository.find_by_login(login_attempt)
         if user and user.check_password(password_attempt):

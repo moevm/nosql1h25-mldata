@@ -20,26 +20,77 @@
                 {% endif %}
             </div>
         </div>
+
+
         <div class="column">
             <div class="ui segment">
                 <div class="ui header">Характеристики</div>
                 <ul>
+                    <li>Автор: <b>{{ dataset_info.dataset_author }}</b></li>
                     <li>Размер файла: {{ dataset_info.dataset_size }} кбайт</li>
                     <li>Количество столбцов: {{ dataset_info.dataset_columns }}</li>
                     <li>Количество записей: {{ dataset_info.dataset_rows }}</li>
+                    <li>Дата создания: {{ dataset_info.dataset_creation_date }}</li>
+                    <li>Текущая версия: {{ dataset_info.dataset_version }}</li>
+
+                    {% if dataset_info.dataset_last_editor %}
+                    <li>Последний редактор: {{ dataset_info.dataset_last_editor }}</li>
+                    {% endif %}
+                    {% if dataset_info.dataset_last_update %}
+                    <li>Последнее обновление: {{ dataset_info.dataset_last_update }}</li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 
     <div class="ui container padded-container">
-        <a class="ui secondary button" href="#">Скачать</a>
+        <a class="ui secondary button"
+           href="/dataset/download/{{ dataset_info.dataset_id }}">
+            Скачать
+        </a>
         <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
-        <a class="ui negative button" href="#">Удалить</a>
+        <a class="ui negative button" onclick="deleteDataset('{{ dataset_info.dataset_id }}')" href="/datasets/">
+            Удалить
+        </a>
         <a class="ui right floated button" href="/datasets/">Назад</a>
     </div>
 
     <div class="ui divider"></div>
-
 </div>
+
+<div class="table-wrapper">
+    <div class="table-container">
+        <table class="data-table">
+            {% if dataset_info.dataset_columns > max_cols_num %}
+            <h3>{{ 'В датасете слишком много столбцов (' ~ dataset_info.dataset_columns ~ '). В таблице отобразятся первые ' ~ max_cols_num}}</h3>
+            {% endif %}
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="image-row">
+                    {% for header in headers %}
+                    <td></td>
+                    {% endfor %}
+                </tr>
+
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='datasetScripts.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 {% endblock %}
