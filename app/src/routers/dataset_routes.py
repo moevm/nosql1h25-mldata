@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 
 from app.src.controllers.dataset_controller import DatasetController
 from app.src.models import Dataset
+from app.src.util.decorators import admin_required
 
 bp: Blueprint = Blueprint('datasets', __name__)
 
