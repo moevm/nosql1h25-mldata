@@ -53,10 +53,15 @@ class Dataset:
         dataset_path: str = filepath
         dataset_version: int = 1
 
-        df: pd.DataFrame = pd.read_csv(StringIO(form_values.dataset_data))
-        dataset_rows: int = df.shape[0]
-        dataset_columns: int = df.shape[1]
-        dataset_size: float = round(len(form_values.dataset_data.encode()) / 1024, 2)
+        if form_values.dataset_data:
+            df: pd.DataFrame = pd.read_csv(StringIO(form_values.dataset_data))
+            dataset_rows: int = df.shape[0]
+            dataset_columns: int = df.shape[1]
+            dataset_size: float = round(len(form_values.dataset_data.encode()) / 1024, 2)
+        else:
+            dataset_rows: int = 0
+            dataset_columns: int = 0
+            dataset_size: float = 0
 
         return cls('-1',
                    form_values.dataset_name, form_values.dataset_description,

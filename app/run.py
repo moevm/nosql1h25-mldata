@@ -7,6 +7,7 @@ import os
 
 from urllib.parse import quote_plus
 from flask import Flask
+from flask_cors import CORS
 
 from app.src.routers import dataset_routes
 from app.src.routers import auth_routes
@@ -27,6 +28,7 @@ port = os.getenv("PORT")
 app.config['MONGO_URI'] = f"mongodb://root:pass@db:27017"
 app.config['UPLOAD_FOLDER'] = os.getenv('DATASET_DIR', './datasets')
 
+CORS(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=os.environ.get('FLASK_DEBUG', 'True').lower() == 'true')

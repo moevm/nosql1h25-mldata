@@ -10,17 +10,17 @@
 <div class="ui text container padded-container">
     <form class="ui form large" id="dataset-form" autocomplete="off">
         <div class="required field">
-            <label>Название</label>
-            <input type="text" name="dataset-name" placeholder="Введите название датасета" maxlength="50" required>
+            <label for="name">Название</label>
+            <input type="text" id="name" name="name" placeholder="Введите название датасета" maxlength="50" required>
         </div>
         <div class="field">
-            <label>Описание</label>
-            <textarea name="dataset-description" maxlength="250" placeholder="Введите описание датасета"></textarea>
+            <label for="desc">Описание</label>
+            <textarea id="desc" name="description" maxlength="250" placeholder="Введите описание датасета"></textarea>
         </div>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.css">
 
         <div class="ui container" style="padding: 20px">
-            <input type="file" id="csvUpload" accept=".csv" hidden>
+            <input type="file" name="dataset" id="csvUpload" accept=".csv" hidden>
             <label for="csvUpload" class="ui huge fluid primary button">
             <i class="file csv outline icon"></i>
             Загрузить csv файл
@@ -28,7 +28,9 @@
         </div>
     </form>
     <div class="ui container padded-container">
-        <button class="ui secondary button" form="dataset-form">Сохранить</button>
+        <button class="ui secondary button" form="dataset-form" onclick="addDataset()">
+            Сохранить
+        </button>
         <a class="ui button right floated" href="/datasets/">Отмена</a>
     </div>
 </div>
@@ -36,5 +38,5 @@
 
 {% block extra %}
 
-<!--<script src="{{ url_for('static', filename='scripts/addDatasetScript.js') }}"></script>-->
+<script src="{{ url_for('static', filename='datasetScripts.js') }}"></script>
 {% endblock %}

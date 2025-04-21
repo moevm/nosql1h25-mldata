@@ -16,7 +16,6 @@ from werkzeug.local import LocalProxy
 from app.src.models.Dataset import Dataset
 from app.src.models.DatasetBrief import DatasetBrief
 
-
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=5000)
@@ -127,3 +126,12 @@ class DatasetRepository:
             dataset['lastModifiedBy']
         )
         return info
+
+    @staticmethod
+    def remove_dataset(dataset_id: str) -> None:
+        """
+        Удаляет датасет из БД.
+        """
+        db['DatasetInfoCollection'].delete_one(
+            {'_id': ObjectId(dataset_id)},
+        )

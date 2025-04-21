@@ -39,6 +39,13 @@ def add_dataset() -> str | Response | BadRequest:
     return BadRequest('Invalid method')
 
 
+@bp.route('/datasets/delete/<dataset_id>', methods=['DELETE'])
+def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
+    if request.method != 'DELETE':
+        return BadRequest('Invalid method')
+    return DatasetController.remove_dataset(dataset_id)
+
+
 @bp.route('/datasets/edit/<dataset_id>/', methods=['GET', 'PATCH'])
 @login_required
 def edit_dataset(dataset_id: str) -> str | Response | BadRequest:
@@ -108,6 +115,7 @@ def download_dataset(dataset_id: str):
     if request.method != 'GET':
         return BadRequest('Invalid method')
 
+    dr = os.getcwd() + current_app.config['UPLOAD_FOLDER'][1:]  # slice: ./dir_name => dir_name
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], f'{dataset_id}.csv'
+       directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )

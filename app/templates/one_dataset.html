@@ -20,22 +20,39 @@
                 {% endif %}
             </div>
         </div>
+
+
         <div class="column">
             <div class="ui segment">
                 <div class="ui header">Характеристики</div>
                 <ul>
+                    <li>Автор: <b>{{ dataset_info.dataset_author }}</b></li>
                     <li>Размер файла: {{ dataset_info.dataset_size }} кбайт</li>
                     <li>Количество столбцов: {{ dataset_info.dataset_columns }}</li>
                     <li>Количество записей: {{ dataset_info.dataset_rows }}</li>
+                    <li>Дата создания: {{ dataset_info.dataset_creation_date }}</li>
+                    <li>Текущая версия: {{ dataset_info.dataset_version }}</li>
+
+                    {% if dataset_info.dataset_last_editor %}
+                    <li>Последний редактор: {{ dataset_info.dataset_last_editor }}</li>
+                    {% endif %}
+                    {% if dataset_info.dataset_last_update %}
+                    <li>Последнее обновление: {{ dataset_info.dataset_last_update }}</li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 
     <div class="ui container padded-container">
-        <a class="ui secondary button" href="#">Скачать</a>
+        <a class="ui secondary button"
+           href="/dataset/download/{{ dataset_info.dataset_id }}">
+            Скачать
+        </a>
         <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
-        <a class="ui negative button" href="#">Удалить</a>
+        <a class="ui negative button" onclick="deleteDataset('{{ dataset_info.dataset_id }}')" href="/datasets/">
+            Удалить
+        </a>
         <a class="ui right floated button" href="/datasets/">Назад</a>
     </div>
 
@@ -73,6 +90,7 @@
         </table>
     </div>
 </div>
-{% endblock %}
 
+<script src="{{ url_for('static', filename='datasetScripts.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
