@@ -12,6 +12,9 @@
             <label for="name">Название</label>
             <input type="text" id="name" name="name" placeholder="Введите название датасета" maxlength="50" required>
         </div>
+        <div id="name-error" class="ui basic red pointing prompt label" style="display: none; margin-bottom: 10px">
+            Введите название датасета
+        </div>
         <div class="field">
             <label for="desc">Описание</label>
             <textarea id="desc" name="description" maxlength="250" placeholder="Введите описание датасета"></textarea>
@@ -20,10 +23,13 @@
 
         <div class="ui container" style="padding: 20px">
             <input type="file" name="dataset" id="csvUpload" accept=".csv" hidden>
-            <label for="csvUpload" class="ui huge fluid primary button">
-            <i class="file csv outline icon"></i>
-            Загрузить csv файл
+            <label for="csvUpload" class="ui huge fluid basic secondary button">
+                <i class="file csv outline icon"></i>
+                <span id="button-label">Загрузить CSV файл</span>
             </label>
+            <div id="file-error" class="ui basic red pointing prompt label" style="display: none;">
+                Загрузите CSV файл
+            </div>
         </div>
     </form>
     <div class="ui container padded-container">
