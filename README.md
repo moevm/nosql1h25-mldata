@@ -1,13 +1,22 @@
 # nosql_template
 
 ## Тестовые данные для авторизации
-Администратор:
+Администратор: <br>
 login: `administrator`
 password: `0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd`
 
-Пользователь:
+Пользователь: <br>
 login: `vasily`
 password: `AuQ5UIkdEiQ0tpH8`
+
+## Основная информация
+URL приложения: http://127.0.0.1:5000/ 
+<br> (Обратите внимание, что не localhost:5000 и не 0.0.0.0:5000)
+
+URL Mongo Express: http://127.0.0.1:8081/ 
+<br> Дополнительная утилита, позволяющая просматривать базу данных MongoDB
+<br> (Использовалась для отладки и проч.)
+<br> login: `root` password: `pass`
 
 ## Предварительная проверка заданий
 
