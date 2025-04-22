@@ -25,6 +25,17 @@ def get_datasets() -> str:
     return DatasetController.render_all_datasets()
 
 
+@bp.route('/datasets/filter/', methods=['POST'])
+@login_required
+def filter_datasets() -> Response | BadRequest:
+    """
+    Обращается с методу контроллера для получения списка Brief'ов датасетов, которые прошли фильтарцию.
+    Требует аутентификации.
+    """
+    if request.method != 'POST':
+        return BadRequest('Invalid method')
+    return DatasetController.filter_datasets(request)
+
 @bp.route('/datasets/add/', methods=['GET', 'POST'])
 @login_required
 def add_dataset() -> str | Response | BadRequest:

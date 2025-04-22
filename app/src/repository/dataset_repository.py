@@ -3,6 +3,8 @@
 Репозиторий напрямую работает с БД - добавляет, изменяет, удаляет и ищет записи в БД.
 """
 import os
+import re
+
 import pymongo
 from typing import Optional
 
@@ -15,6 +17,7 @@ from werkzeug.local import LocalProxy
 
 from app.src.models.Dataset import Dataset
 from app.src.models.DatasetBrief import DatasetBrief
+from app.src.models.FilterValues import FilterValues
 
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
@@ -78,6 +81,28 @@ class DatasetRepository:
                 )
         except Exception as e:
             print(f"DatasetRepository: Error fetching dataset briefs from MongoDB: {e}")
+
+        return briefs
+
+    @staticmethod
+    def get_filtered_briefs(filters: FilterValues) -> list:
+        name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
+
+        cursor = db['DatasetInfoCollection'].find({
+            'name': {'$regex': name_regex}
+        })
+
+        briefs: list = []
+        for doc in cursor:
+            briefs.append(
+                DatasetBrief(
+                    dataset_id=str(doc.get('_id')),
+                    dataset_name=doc.get('name', 'N/A'),
+                    dataset_description=doc.get('description', ''),
+                    dataset_type="CSV",
+                    dataset_size=doc.get('size', 0)
+                )
+            )
 
         return briefs
 

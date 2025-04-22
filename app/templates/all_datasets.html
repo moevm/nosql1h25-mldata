@@ -10,7 +10,7 @@
     <form id="filter-form">
         <div class="ui text container">
             <div class="ui transparent left icon input searchbar">
-                <input type="text" name="filter-name" placeholder="Поиск...">
+                <input type="text" name="name" placeholder="Поиск...">
                 <i class="search icon"></i>
             </div>
             <div class="ui divider"></div>
@@ -20,7 +20,7 @@
     <button id="fiter-button" class="ui secondary button" form="filter-form">Подтвердить</button>
     <div class="ui divider"></div>
 
-    <div class="ui three cards cards-container">
+    <div class="ui three cards cards-container" id="cards-container">
         {% for brief in datasets_brief %}
         <a class="ui card" href="/dataset/{{ brief.dataset_id }}/">
             <div class="content">
@@ -39,4 +39,5 @@
 <a class="circular ui icon button massive secondary add-button" href="/datasets/add/">
     <i class="icon plus"></i>
 </a>
+<script src="../static/scripts/filterScripts.js"></script>
 {% endblock %}

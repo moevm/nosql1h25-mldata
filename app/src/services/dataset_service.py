@@ -7,6 +7,7 @@ from bson import ObjectId
 
 from app.src.models.Dataset import Dataset
 from app.src.models.DatasetFormValues import DatasetFormValues
+from app.src.models.FilterValues import FilterValues
 from app.src.repository.dataset_repository import DatasetRepository
 
 
@@ -21,6 +22,13 @@ class DatasetService:
         Обращается к методу репозитория для получения списка Brief'ов всех датасетов в БД.
         """
         return DatasetRepository.get_all_datasets_brief()
+
+    @staticmethod
+    def get_filtered_briefs(filters: FilterValues) -> list:
+        """
+        Обращается к методу репозитория для получения списка Brief'ов датасетов, которые прошли фильтрацию.
+        """
+        return DatasetRepository.get_filtered_briefs(filters)
 
     @staticmethod
     def save_dataset(form_values: DatasetFormValues, author: str, filepath: str) -> str:
