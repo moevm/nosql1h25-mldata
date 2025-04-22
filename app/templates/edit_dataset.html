@@ -3,7 +3,6 @@
 {% block menu %}
 <a class="header item" href="/datasets/">Главная</a>
 <a class="header active item">Редактировать {{ dataset_brief.dataset_name }}</a>
-<a class="header right item" href="#">Импорт/Экспорт</a>
 {% endblock %}
 
 {% block content %}
@@ -11,9 +10,12 @@
     <form class="ui form large" id="dataset-form" autocomplete="off">
         <div class="required field">
             <label>Название</label>
-            <input type="text" name="name" placeholder="Введите название датасета"
+            <input type="text" name="name" id="name" placeholder="Введите название датасета"
                    value="{{dataset_brief.dataset_name}}"
                    maxlength="50" required>
+        </div>
+        <div id="name-error" class="ui basic red pointing prompt label" style="display: none; margin-bottom: 10px">
+            Введите название датасета
         </div>
         <div class="field">
             <label>Описание</label>
@@ -22,9 +24,9 @@
         </div>
         <div class="ui container" style="padding: 20px">
             <input type="file" name="dataset" id="csvUpload" accept=".csv" hidden>
-            <label for="csvUpload" class="ui huge fluid primary button">
+            <label for="csvUpload" class="ui huge fluid basic secondary button">
                 <i class="file csv outline icon"></i>
-                Загрузить CSV файл
+                <span id="button-label">Заменить CSV файл</span>
             </label>
         </div>
     </form>
