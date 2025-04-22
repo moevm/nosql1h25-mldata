@@ -30,6 +30,11 @@
             </div>
         </a>
         {% endfor %}
+        {% if datasets_brief|length == 0 %}
+        <div class="ui container center aligned" style="height: 30vh; display: flex; flex-direction: column; justify-content: center;">
+            <div class="ui huge grey header"> Нажмите на (+) чтобы добавить датасет</div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
