@@ -20,7 +20,7 @@
     <button id="fiter-button" class="ui secondary button" form="filter-form">Подтвердить</button>
     <div class="ui divider"></div>
 
-    <div class="ui three cards cards-container">
+    <div class="ui three cards cards-container" id="cards-container">
         {% for brief in datasets_brief %}
         <a class="ui card" href="/dataset/{{ brief.dataset_id }}/">
             <div class="content">
