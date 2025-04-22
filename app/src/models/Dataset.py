@@ -85,5 +85,5 @@ class Dataset:
             'lastVersionNumber': self.dataset_version,
             'lastModifiedDate':  self.dataset_last_update,
             'path':              self.dataset_path,
-            'lastModifiedBy':    self.dataset_author,
+            'lastModifiedBy':    self.dataset_last_editor,
         }
