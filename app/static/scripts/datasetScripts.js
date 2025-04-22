@@ -35,7 +35,7 @@ function editDataset(datasetId) {
         .then(response => {
             if (!response.ok)
                 throw new Error('Response is not ok');
-            document.location.href = MAIN_PAGE;
+            document.location.href = FLASK_ROOT_URL + "/dataset/" + datasetId;
         })
         .catch(error => {
             console.error('Error:', error);
