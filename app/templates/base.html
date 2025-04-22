@@ -15,47 +15,51 @@
         </a>
     </h1>
     <div class="ui secondary pointing menu">
-        {% block menu %}
-        {% endblock %}
+        <div class="left menu">
+            {% block menu %}
+            {% endblock %}
+        </div>
 
-        {% if current_user and current_user.is_authenticated and current_user.is_admin %}
-            <a class="item ui yellow button {% if request.endpoint.startswith('admin.') %}active{% endif %}"
-               href="{{ url_for('auth.index') }}">
-                <i class="ui shield alternate icon"></i> Admin Panel
-            </a>
-        {% endif %}
 
         <div class="right menu">
             {% if current_user and current_user.is_authenticated %}
-                <span class="item">
+            <span class="header item">
                      <i class="user circle icon"></i> {{ current_user.username }}
-                </span>
-                 <a class="item" href="{{ url_for('auth.logout') }}">
-                     <i class="ui sign out alternate icon"></i> Выйти
-                 </a>
+            </span>
+            {% if current_user.is_admin %}
+            <a class="header center item {% if request.endpoint.startswith('admin.') %}active{% endif %}"
+               href="{{ url_for('auth.index') }}">
+                <i class="ui shield alternate icon"></i> Admin Panel
+            </a>
+            {% endif %}
+            <a class="header item" href="{{ url_for('auth.logout') }}">
+                <i class="ui sign out alternate icon"></i> Выйти
+            </a>
             {% else %}
-                 <a class="item {% if request.endpoint == 'auth.login' %}active{% endif %}" href="{{ url_for('auth.login') }}">
-                     <i class="ui sign in alternate icon"></i> Войти
-                 </a>
+            <a class="item {% if request.endpoint == 'auth.login' %}active{% endif %}"
+               href="{{ url_for('auth.login') }}">
+                <i class="ui sign in alternate icon"></i> Войти
+            </a>
             {% endif %}
         </div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="ui container" style="margin-top: 1em; margin-bottom: 1em;">
+    {% if messages %}
+    <div class="ui container" style="margin-top: 1em; margin-bottom: 1em;">
         {% for category, message in messages %}
-          {% set category_map = {'danger': 'negative', 'warning': 'warning', 'info': 'info', 'success': 'positive'} %}
-          <div class="ui {{ category_map.get(category, 'info') }} message">
+        {% set category_map = {'danger': 'negative', 'warning': 'warning', 'info': 'info', 'success': 'positive'} %}
+        <div class="ui {{ category_map.get(category, 'info') }} message">
             <i class="close icon"></i>
             <div class="header">
-              {% if category == 'danger' %}Ошибка{% elif category == 'warning' %}Внимание{% else %}Информация{% endif %}
+                {% if category == 'danger' %}Ошибка{% elif category == 'warning' %}Внимание{% else %}Информация{% endif
+                %}
             </div>
             <p>{{ message }}</p>
-          </div>
-        {% endfor %}
         </div>
-      {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
 </div>
@@ -71,11 +75,11 @@
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
 {# --- Script to make flash messages dismissible --- #}
 <script>
-  $(document).ready(function(){
-    $('.message .close').on('click', function() {
-      $(this).closest('.message').transition('fade');
+    $(document).ready(function () {
+        $('.message .close').on('click', function () {
+            $(this).closest('.message').transition('fade');
+        });
     });
-  });
 </script>
 </body>
 </html>
