@@ -263,11 +263,12 @@ def add_examples() -> None:
             }
         ])
 
+    john_pass_hash = generate_password_hash("pa$$word123")
     db.User.insert_one({
         "_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1",
         "username": "John Sales",
         "login": "john.sales@company.com",
-        "password": "pa$$word123",
+        "password": john_pass_hash,
         "status": 1,
         "createdDatasetsCount": 17,
         "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33),
