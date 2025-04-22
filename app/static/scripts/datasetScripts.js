@@ -76,6 +76,10 @@ function editDataset(datasetId) {
 function deleteDataset(datasetId) {
     event.preventDefault();
 
+    if(!confirm('Вы уверены?')) {
+        return;
+    }
+
     fetch(DELETE_URL + datasetId, {
         method: 'DELETE',
         redirect: 'follow'
