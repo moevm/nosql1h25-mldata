@@ -9,4 +9,4 @@ class FilterValues:
     """
 
     def __init__(self, name: str):
-        self.name: str = name
+        self.name: str = name.strip()
