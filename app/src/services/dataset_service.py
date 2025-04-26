@@ -2,6 +2,7 @@
 Содержит сервисы приложения. Сервис представляет бизнес-логику приложения.
 """
 import uuid
+from typing import Optional
 
 from bson import ObjectId
 
@@ -68,3 +69,21 @@ class DatasetService:
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         return DatasetRepository.remove_dataset(dataset_id)
+
+    @staticmethod
+    def extract_filter_values(request) -> FilterValues:
+        form_data = request.form
+
+        name: str = form_data['name']
+
+        size_from: Optional[int] = int(form_data['size-from']) if form_data['size-from'] != '' else None
+        size_to: Optional[int] = int(form_data['size-to']) if form_data['size-to'] != '' else None
+
+        row_size_from: Optional[int] = int(form_data['row-size-from']) if form_data['row-size-from'] != '' else None
+        row_size_to: Optional[int] = int(form_data['row-size-to']) if form_data['row-size-to'] != '' else None
+
+        column_size_from: Optional[int] = int(form_data['column-size-from']) if form_data[
+                                                                                    'column-size-from'] != '' else None
+        column_size_to: Optional[int] = int(form_data['column-size-to']) if form_data['column-size-to'] != '' else None
+
+        return FilterValues(name, size_from, size_to, row_size_from, row_size_to, column_size_from, column_size_to)
