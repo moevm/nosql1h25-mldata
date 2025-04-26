@@ -6,7 +6,7 @@ from io import StringIO
 
 import pandas as pd
 
-from app.src.models.DatasetFormValues import DatasetFormValues
+from src.models.DatasetFormValues import DatasetFormValues
 
 
 class Dataset:

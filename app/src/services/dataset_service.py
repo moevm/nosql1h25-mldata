@@ -5,10 +5,10 @@ import uuid
 
 from bson import ObjectId
 
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetFormValues import DatasetFormValues
-from app.src.models.FilterValues import FilterValues
-from app.src.repository.dataset_repository import DatasetRepository
+from src.models.Dataset import Dataset
+from src.models.DatasetFormValues import DatasetFormValues
+from src.models.FilterValues import FilterValues
+from src.repository.dataset_repository import DatasetRepository
 
 
 class DatasetService:

@@ -8,10 +8,10 @@ from flask import render_template, Request, Response, current_app, make_response
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
-from app.src.models.FilterValues import FilterValues
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetFormValues import DatasetFormValues
-from app.src.services.dataset_service import DatasetService
+from src.models.FilterValues import FilterValues
+from src.models.Dataset import Dataset
+from src.models.DatasetFormValues import DatasetFormValues
+from src.services.dataset_service import DatasetService
 
 
 class DatasetController:

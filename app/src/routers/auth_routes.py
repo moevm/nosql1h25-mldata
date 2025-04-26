@@ -6,7 +6,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_login import LoginManager
 from urllib.parse import urlparse
 
-from app.src.repository.user_repository import UserRepository
+from src.repository.user_repository import UserRepository
 
 auth_bp: Blueprint = Blueprint('auth', __name__, template_folder='templates')
 
