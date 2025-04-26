@@ -9,8 +9,8 @@ from urllib.parse import quote_plus
 from flask import Flask
 from flask_cors import CORS
 
-from app.src.routers import dataset_routes
-from app.src.routers import auth_routes
+from src.routers import dataset_routes
+from src.routers import auth_routes
 
 # --- Flask App Initialization ---
 app: Flask = Flask(__name__, template_folder='templates')

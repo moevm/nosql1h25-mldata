@@ -8,9 +8,9 @@ from flask import Blueprint, Response, request, send_from_directory, current_app
 from flask_login import login_required
 from werkzeug.exceptions import BadRequest
 
-from app.src.controllers.dataset_controller import DatasetController
-from app.src.models import Dataset
-from app.src.util.decorators import admin_required
+from src.controllers.dataset_controller import DatasetController
+from src.models import Dataset
+from src.util.decorators import admin_required
 
 bp: Blueprint = Blueprint('datasets', __name__)
 

@@ -15,9 +15,9 @@ from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy
 
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetBrief import DatasetBrief
-from app.src.models.FilterValues import FilterValues
+from src.models.Dataset import Dataset
+from src.models.DatasetBrief import DatasetBrief
+from src.models.FilterValues import FilterValues
 
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
