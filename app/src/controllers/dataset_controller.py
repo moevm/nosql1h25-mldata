@@ -34,7 +34,7 @@ class DatasetController:
         Обращается к методу сервиса для получения списка Brief'ов датасетов, которые прошли фильтрацию.
         """
 
-        filters: FilterValues = DatasetController._extract_filter_values(request)
+        filters: FilterValues = DatasetService.extract_filter_values(request)
         filtered_briefs: list = DatasetService.get_filtered_briefs(filters)
 
         response: Response = make_response(jsonify([brief.to_dict() for brief in filtered_briefs]), 200)
@@ -143,10 +143,3 @@ class DatasetController:
         dataset_fs: FileStorage = request.files['dataset']
         dataset_data = '\n'.join([v.decode('utf-8').strip() for v in dataset_fs.readlines()])
         return DatasetFormValues(dataset_name, dataset_description, dataset_data)
-
-    @staticmethod
-    def _extract_filter_values(request) -> FilterValues:
-        form_data = request.form
-        name: str = form_data['name']
-
-        return FilterValues(name)
