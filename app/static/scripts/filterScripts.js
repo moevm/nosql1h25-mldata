@@ -12,6 +12,11 @@ filterForm.addEventListener('submit', (e) => {
 
     const formData = new FormData(filterForm);
 
+    if (parseInt(formData.get('size-from')) > parseInt(formData.get('size-to')) || parseInt(formData.get('row-size-from')) > parseInt(formData.get('row-size-to')) || parseInt(formData.get('column-size-from')) > parseInt(formData.get('column-size-to'))) {
+        alert("Значение 'От' не может быть больше значения 'До'");
+        return;
+    }
+
     fetch(FILTER_URL, {
         method: 'POST',
         body: formData,

@@ -92,13 +92,13 @@ class DatasetRepository:
             name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
             query['name'] = {'$regex': name_regex}
 
-        if filters.size_from or filters.size_to:
+        if filters.size_from is not None or filters.size_to is not None:
             query['size'] = DatasetRepository._create_from_to_query(filters.size_from, filters.size_to)
 
-        if filters.row_size_from or filters.row_size_to:
+        if filters.row_size_from is not None or filters.row_size_to is not None:
             query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
 
-        if filters.column_size_from or filters.column_size_to:
+        if filters.column_size_from is not None or filters.column_size_to is not None:
             query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
 
         cursor = db['DatasetInfoCollection'].find(query)
@@ -170,8 +170,8 @@ class DatasetRepository:
         INT64_MAX: int = 9223372036854775807
 
         query: dict = {}
-        if from_:
+        if from_ is not None:
             query['$gte'] = min(from_, INT64_MAX)
-        if to_:
+        if to_ is not None:
             query['$lte'] = min(to_, INT64_MAX)
         return query
