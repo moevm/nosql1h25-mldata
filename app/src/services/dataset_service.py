@@ -76,8 +76,8 @@ class DatasetService:
 
         name: str = form_data['name']
 
-        size_from: Optional[int] = int(float(form_data['size-from'])) if form_data['size-from'] != '' else None
-        size_to: Optional[int] = int(float(form_data['size-to'])) if form_data['size-to'] != '' else None
+        size_from: Optional[float] = float(form_data['size-from']) if form_data['size-from'] != '' else None
+        size_to: Optional[float] = float(form_data['size-to']) if form_data['size-to'] != '' else None
 
         row_size_from: Optional[int] = int(float(form_data['row-size-from'])) if form_data['row-size-from'] != '' else None
         row_size_to: Optional[int] = int(float(form_data['row-size-to'])) if form_data['row-size-to'] != '' else None

@@ -166,7 +166,7 @@ class DatasetRepository:
         )
 
     @staticmethod
-    def _create_from_to_query(from_: Optional[int], to_: Optional[int]) -> dict:
+    def _create_from_to_query(from_: Optional[int | float], to_: Optional[int | float]) -> dict:
         INT64_MAX: int = 9223372036854775807
 
         query: dict = {}
