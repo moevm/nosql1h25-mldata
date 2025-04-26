@@ -167,9 +167,11 @@ class DatasetRepository:
 
     @staticmethod
     def _create_from_to_query(from_: Optional[int], to_: Optional[int]) -> dict:
+        INT64_MAX: int = 9223372036854775807
+
         query: dict = {}
         if from_:
-            query['$gte'] = from_
+            query['$gte'] = min(from_, INT64_MAX)
         if to_:
-            query['$lte'] = to_
+            query['$lte'] = min(to_, INT64_MAX)
         return query
