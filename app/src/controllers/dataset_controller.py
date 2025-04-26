@@ -3,6 +3,7 @@
 """
 import os
 from pathlib import PosixPath, Path
+from typing import Optional
 
 from flask import render_template, Request, Response, current_app, make_response, jsonify
 from flask_login import current_user
@@ -147,6 +148,16 @@ class DatasetController:
     @staticmethod
     def _extract_filter_values(request) -> FilterValues:
         form_data = request.form
+
         name: str = form_data['name']
 
-        return FilterValues(name)
+        size_from: Optional[int] = int(form_data['size-from']) if form_data['size-from'] != '' else None
+        size_to: Optional[int] = int(form_data['size-to']) if form_data['size-to'] != '' else None
+
+        row_size_from: Optional[int] = int(form_data['row-size-from']) if form_data['row-size-from'] != '' else None
+        row_size_to: Optional[int] = int(form_data['row-size-to']) if form_data['row-size-to'] != '' else None
+
+        column_size_from: Optional[int] = int(form_data['column-size-from']) if form_data['column-size-from'] != '' else None
+        column_size_to: Optional[int] = int(form_data['column-size-to']) if form_data['column-size-to'] != '' else None
+
+        return FilterValues(name, size_from, size_to, row_size_from, row_size_to, column_size_from, column_size_to)

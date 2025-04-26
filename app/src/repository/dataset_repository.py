@@ -86,11 +86,22 @@ class DatasetRepository:
 
     @staticmethod
     def get_filtered_briefs(filters: FilterValues) -> list:
-        name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
+        query: dict = {}
 
-        cursor = db['DatasetInfoCollection'].find({
-            'name': {'$regex': name_regex}
-        })
+        if filters.name:
+            name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
+            query['name'] = {'$regex': name_regex}
+
+        if filters.size_from or filters.size_to:
+            query['size'] = DatasetRepository._create_from_to_query(filters.size_from, filters.size_to)
+
+        if filters.row_size_from or filters.row_size_to:
+            query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
+
+        if filters.column_size_from or filters.column_size_to:
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+
+        cursor = db['DatasetInfoCollection'].find(query)
 
         briefs: list = []
         for doc in cursor:
@@ -153,3 +164,12 @@ class DatasetRepository:
         db['DatasetInfoCollection'].delete_one(
             {'_id': dataset_id},
         )
+
+    @staticmethod
+    def _create_from_to_query(from_: Optional[int], to_: Optional[int]) -> dict:
+        query: dict = {}
+        if from_:
+            query['$gte'] = from_
+        if to_:
+            query['$lte'] = to_
+        return query
