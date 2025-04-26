@@ -1,3 +1,7 @@
+$(document).ready(() => {
+    $('.ui.accordion').accordion();
+});
+
 const FLASK_ROOT_URL = "http://127.0.0.1:5000"
 const MAIN_PAGE = FLASK_ROOT_URL + "/datasets";
 const FILTER_URL = MAIN_PAGE + "/filter/";

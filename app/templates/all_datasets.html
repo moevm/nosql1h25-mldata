@@ -16,77 +16,87 @@
             <div class="ui divider"></div>
         </div>
 
-        <div class="ui two column stackable grid">
+        <div class="ui styled fluid accordion">
 
-            <!-- dataset size -->
-            <div class="row">
-                <div class="column">
-                    <div class="ui form">
-                        <h5>Размер датасета</h5>
-                        <div class="three fields">
-                            <div class="field">
-                                <input type="number" placeholder="От" min="0" name="size-from">
-                            </div>
-                            <div class="field">
-                                <input type="number" placeholder="До" min="0" name="size-to">
-                            </div>
-                            <div class="field">
-                                <select class="ui dropdown" name="size-sort">
-                                    <option>-</option>
-                                    <option>По возрастанию</option>
-                                    <option>По убыванию</option>
-                                </select>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                <span class="header">Дополнительно</span>
+            </div>
+
+            <div class="content">
+                <div class="ui two column stackable grid">
+                    <!-- dataset size -->
+                    <div class="row">
+                        <div class="column">
+                            <div class="ui form">
+                                <h5>Размер датасета</h5>
+                                <div class="three fields">
+                                    <div class="field">
+                                        <input type="number" placeholder="От" min="0" name="size-from">
+                                    </div>
+                                    <div class="field">
+                                        <input type="number" placeholder="До" min="0" name="size-to">
+                                    </div>
+                                    <div class="field">
+                                        <select class="ui dropdown" name="size-sort">
+                                            <option>-</option>
+                                            <option>По возрастанию</option>
+                                            <option>По убыванию</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- row size -->
-            <div class="column">
-                <div class="ui form">
-                    <h5>Количество строк</h5>
-                    <div class="three fields">
-                        <div class="field">
-                            <input type="number" placeholder="От" min="0" name="row-size-from">
-                        </div>
-                        <div class="field">
-                            <input type="number" placeholder="До" min="0" name="row-size-to">
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" name="row-size-sort">
-                                <option>-</option>
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
+                    <!-- row size -->
+                    <div class="column">
+                        <div class="ui form">
+                            <h5>Количество строк</h5>
+                            <div class="three fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" name="row-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" name="row-size-to">
+                                </div>
+                                <div class="field">
+                                    <select class="ui dropdown" name="row-size-sort">
+                                        <option>-</option>
+                                        <option>По возрастанию</option>
+                                        <option>По убыванию</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- columns size -->
-            <div class="column">
-                <div class="ui form">
-                    <h5>Количество столбцов</h5>
-                    <div class="three fields">
-                        <div class="field">
-                            <input type="number" placeholder="От" min="0" name="column-size-from">
-                        </div>
-                        <div class="field">
-                            <input type="number" placeholder="До" min="0" name="column-size-to">
-                        </div>
-                        <div class="field">
-                            <select class="ui dropdown" name="column-size-sort">
-                                <option>-</option>
-                                <option>По возрастанию</option>
-                                <option>По убыванию</option>
-                            </select>
+                    <!-- columns size -->
+                    <div class="column">
+                        <div class="ui form">
+                            <h5>Количество столбцов</h5>
+                            <div class="three fields">
+                                <div class="field">
+                                    <input type="number" placeholder="От" min="0" name="column-size-from">
+                                </div>
+                                <div class="field">
+                                    <input type="number" placeholder="До" min="0" name="column-size-to">
+                                </div>
+                                <div class="field">
+                                    <select class="ui dropdown" name="column-size-sort">
+                                        <option>-</option>
+                                        <option>По возрастанию</option>
+                                        <option>По убыванию</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
     </form>
 
     <button id="fiter-button" class="ui secondary button" form="filter-form">Применить фильтры</button>

@@ -68,9 +68,6 @@
     {% block content %}{% endblock %}
 </div>
 
-
-{% block extra %}{% endblock %}
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
 {# --- Script to make flash messages dismissible --- #}
@@ -81,5 +78,8 @@
         });
     });
 </script>
+
+{% block extra %}{% endblock %}
+
 </body>
 </html>
