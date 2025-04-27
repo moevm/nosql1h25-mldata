@@ -8,6 +8,8 @@ import re
 import pymongo
 from typing import Optional
 
+from datetime import datetime, timedelta
+
 from typing import Any
 from bson import ObjectId
 from flask import current_app, g
@@ -101,6 +103,12 @@ class DatasetRepository:
         if filters.column_size_from is not None or filters.column_size_to is not None:
             query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
 
+        if filters.creation_date_from is not None or filters.creation_date_to is not None:
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+
+        if filters.modify_date_from is not None or filters.modify_date_to is not None:
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+
         cursor = db['DatasetInfoCollection'].find(query)
 
         briefs: list = []
@@ -166,12 +174,19 @@ class DatasetRepository:
         )
 
     @staticmethod
-    def _create_from_to_query(from_: Optional[int | float], to_: Optional[int | float]) -> dict:
+    def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:
         INT64_MAX: int = 9223372036854775807
+        DATETIME_MAX: datetime = datetime.today() + timedelta(days=1)
 
         query: dict = {}
         if from_ is not None:
-            query['$gte'] = min(from_, INT64_MAX)
+            if isinstance(from_, datetime):
+                query['$gte'] = min(from_, DATETIME_MAX)
+            else:
+                query['$gte'] = min(from_, INT64_MAX)
         if to_ is not None:
-            query['$lte'] = min(to_, INT64_MAX)
+            if isinstance(to_, datetime):
+                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
+            else:
+                query['$lte'] = min(to_, INT64_MAX)
         return query
