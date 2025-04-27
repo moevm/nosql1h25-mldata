@@ -107,7 +107,7 @@ class DatasetRepository:
             query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
 
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
-            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
         cursor = db['DatasetInfoCollection'].find(query)
 
