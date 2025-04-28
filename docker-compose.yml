@@ -1,8 +1,6 @@
 services:
   db:
     image: mongo:8.0.6
-    ports:
-      - 27017:27017
     volumes:
       - dbdata:/data/db/
     environment:
@@ -45,6 +43,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file: .env
     environment:
       MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@db:27017/${MONGO_DB_NAME}?authSource=admin
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
@@ -56,10 +55,11 @@ services:
     networks:
       - service_net
     volumes:
-      - .:/app
+      - datasets:/app/datasets
 
 volumes:
   dbdata:
+  datasets:
 
 networks:
   service_net:

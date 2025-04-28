@@ -8,10 +8,10 @@ from flask import render_template, Request, Response, current_app, make_response
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
-from app.src.models.FilterValues import FilterValues
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetFormValues import DatasetFormValues
-from app.src.services.dataset_service import DatasetService
+from src.models.FilterValues import FilterValues
+from src.models.Dataset import Dataset
+from src.models.DatasetFormValues import DatasetFormValues
+from src.services.dataset_service import DatasetService
 
 
 class DatasetController:
@@ -34,7 +34,7 @@ class DatasetController:
         Обращается к методу сервиса для получения списка Brief'ов датасетов, которые прошли фильтрацию.
         """
 
-        filters: FilterValues = DatasetController._extract_filter_values(request)
+        filters: FilterValues = DatasetService.extract_filter_values(request)
         filtered_briefs: list = DatasetService.get_filtered_briefs(filters)
 
         response: Response = make_response(jsonify([brief.to_dict() for brief in filtered_briefs]), 200)
@@ -143,10 +143,3 @@ class DatasetController:
         dataset_fs: FileStorage = request.files['dataset']
         dataset_data = '\n'.join([v.decode('utf-8').strip() for v in dataset_fs.readlines()])
         return DatasetFormValues(dataset_name, dataset_description, dataset_data)
-
-    @staticmethod
-    def _extract_filter_values(request) -> FilterValues:
-        form_data = request.form
-        name: str = form_data['name']
-
-        return FilterValues(name)

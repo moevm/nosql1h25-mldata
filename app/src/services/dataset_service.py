@@ -2,13 +2,15 @@
 Содержит сервисы приложения. Сервис представляет бизнес-логику приложения.
 """
 import uuid
+from typing import Optional
+from datetime import datetime
 
 from bson import ObjectId
 
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetFormValues import DatasetFormValues
-from app.src.models.FilterValues import FilterValues
-from app.src.repository.dataset_repository import DatasetRepository
+from src.models.Dataset import Dataset
+from src.models.DatasetFormValues import DatasetFormValues
+from src.models.FilterValues import FilterValues
+from src.repository.dataset_repository import DatasetRepository
 
 
 class DatasetService:
@@ -49,7 +51,8 @@ class DatasetService:
         """
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
 
-        dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author, filepath)
+        dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
+                                                    filepath)
         if not form_values.dataset_data:
             dataset.dataset_columns = old_dataset.dataset_columns
             dataset.dataset_rows = old_dataset.dataset_rows
@@ -68,3 +71,36 @@ class DatasetService:
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         return DatasetRepository.remove_dataset(dataset_id)
+
+    @staticmethod
+    def extract_filter_values(request) -> FilterValues:
+        form_data = request.form
+
+        name: str = form_data['name']
+
+        size_from: Optional[float] = float(form_data['size-from']) if form_data['size-from'] != '' else None
+        size_to: Optional[float] = float(form_data['size-to']) if form_data['size-to'] != '' else None
+
+        row_size_from: Optional[int] = int(float(form_data['row-size-from'])) if form_data[
+                                                                                     'row-size-from'] != '' else None
+        row_size_to: Optional[int] = int(float(form_data['row-size-to'])) if form_data['row-size-to'] != '' else None
+
+        column_size_from: Optional[int] = int(float(form_data['column-size-from'])) if form_data[
+                                                                                           'column-size-from'] != '' else None
+        column_size_to: Optional[int] = int(float(form_data['column-size-to'])) if form_data[
+                                                                                       'column-size-to'] != '' else None
+
+        creation_date_from: Optional[datetime] = datetime.strptime(form_data['creation-date-from'], '%Y-%m-%d') if form_data['creation-date-from'] != '' else None
+        creation_date_to: Optional[datetime] = datetime.strptime(form_data['creation-date-to'], '%Y-%m-%d') if form_data['creation-date-to'] != '' else None
+
+        modify_date_from: Optional[datetime] = datetime.strptime(form_data['modify-date-from'], '%Y-%m-%d') if form_data['modify-date-from'] != '' else None
+        modify_date_to: Optional[datetime] = datetime.strptime(form_data['modify-date-to'], '%Y-%m-%d') if form_data['modify-date-to'] != '' else None
+
+        return FilterValues(
+            name,
+            size_from, size_to,
+            row_size_from, row_size_to,
+            column_size_from, column_size_to,
+            creation_date_from, creation_date_to,
+            modify_date_from, modify_date_to
+        )

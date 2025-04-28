@@ -4,7 +4,7 @@
 import os
 import pymongo
 
-from app.src.models.user import User
+from src.models.user import User
 
 
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')

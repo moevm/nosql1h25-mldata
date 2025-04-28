@@ -8,6 +8,8 @@ import re
 import pymongo
 from typing import Optional
 
+from datetime import datetime, timedelta
+
 from typing import Any
 from bson import ObjectId
 from flask import current_app, g
@@ -15,9 +17,9 @@ from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy
 
-from app.src.models.Dataset import Dataset
-from app.src.models.DatasetBrief import DatasetBrief
-from app.src.models.FilterValues import FilterValues
+from src.models.Dataset import Dataset
+from src.models.DatasetBrief import DatasetBrief
+from src.models.FilterValues import FilterValues
 
 # --- Database Connection ---
 uri = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
@@ -86,11 +88,28 @@ class DatasetRepository:
 
     @staticmethod
     def get_filtered_briefs(filters: FilterValues) -> list:
-        name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
+        query: dict = {}
 
-        cursor = db['DatasetInfoCollection'].find({
-            'name': {'$regex': name_regex}
-        })
+        if filters.name:
+            name_regex = re.compile(f'.*{re.escape(filters.name)}.*', re.IGNORECASE)
+            query['name'] = {'$regex': name_regex}
+
+        if filters.size_from is not None or filters.size_to is not None:
+            query['size'] = DatasetRepository._create_from_to_query(filters.size_from, filters.size_to)
+
+        if filters.row_size_from is not None or filters.row_size_to is not None:
+            query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
+
+        if filters.column_size_from is not None or filters.column_size_to is not None:
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+
+        if filters.creation_date_from is not None or filters.creation_date_to is not None:
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+
+        if filters.modify_date_from is not None or filters.modify_date_to is not None:
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
+
+        cursor = db['DatasetInfoCollection'].find(query)
 
         briefs: list = []
         for doc in cursor:
@@ -153,3 +172,21 @@ class DatasetRepository:
         db['DatasetInfoCollection'].delete_one(
             {'_id': dataset_id},
         )
+
+    @staticmethod
+    def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:
+        INT64_MAX: int = 9223372036854775807
+        DATETIME_MAX: datetime = datetime.today() + timedelta(days=1)
+
+        query: dict = {}
+        if from_ is not None:
+            if isinstance(from_, datetime):
+                query['$gte'] = min(from_, DATETIME_MAX)
+            else:
+                query['$gte'] = min(from_, INT64_MAX)
+        if to_ is not None:
+            if isinstance(to_, datetime):
+                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
+            else:
+                query['$lte'] = min(to_, INT64_MAX)
+        return query
