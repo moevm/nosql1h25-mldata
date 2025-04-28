@@ -17,7 +17,7 @@ filterForm.addEventListener('submit', (e) => {
         parseInt(formData.get('row-size-from')) > parseInt(formData.get('row-size-to')) ||
         parseInt(formData.get('column-size-from')) > parseInt(formData.get('column-size-to')) ||
         Date.parse(formData.get('creation-date-from')) > Date.parse(formData.get('creation-date-to')) ||
-        Date.parse(formData.get('modify-date-from')) > Date.parse(formData.get('modify-date-from'))
+        Date.parse(formData.get('modify-date-from')) > Date.parse(formData.get('modify-date-to'))
     ) {
         alert("Значение 'От' не может быть больше значения 'До'");
         return;
