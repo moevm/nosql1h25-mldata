@@ -7,6 +7,7 @@ RUN apk add --no-cache netcat-openbsd
 COPY ./app/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY ./app /app
+COPY ./example-datasets /app/example-datasets
 
 EXPOSE 5000
 
