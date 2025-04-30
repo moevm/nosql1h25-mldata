@@ -45,6 +45,10 @@ function redrawCards(arrayOfBriefs) {
     for (let brief of arrayOfBriefs) {
         container.appendChild(createCard(brief));
     }
+
+    if (arrayOfBriefs.length !== 0) {
+        container.scrollIntoView({behavior: 'smooth', block: 'start'})
+    }
 }
 
 function createCard(brief) {
