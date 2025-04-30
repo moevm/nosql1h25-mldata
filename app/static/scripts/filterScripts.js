@@ -42,15 +42,12 @@ const container = document.getElementById('cards-container');
 function redrawCards(arrayOfBriefs) {
     container.replaceChildren();
 
-    if (arrayOfBriefs.length !== 0) {
-        window.scrollTo({top: 0, behavior: "auto"});
-        setTimeout(() => {
-            container.scrollIntoView({behavior: "smooth", block: "start"});
-        }, 10);
-    }
-
     for (let brief of arrayOfBriefs) {
         container.appendChild(createCard(brief));
+    }
+
+    if (arrayOfBriefs.length !== 0) {
+        container.scrollIntoView({behavior: 'smooth', block: 'start'})
     }
 }
 
