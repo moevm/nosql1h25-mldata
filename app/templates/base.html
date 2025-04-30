@@ -14,7 +14,7 @@
             <i class="ui icon crow"></i> Gakkle
         </a>
     </h1>
-    <div class="ui sticky secondary pointing menu" id="header">
+    <div class="ui secondary pointing menu">
         <div class="left menu">
             {% block menu %}
             {% endblock %}
@@ -77,7 +77,6 @@
             $(this).closest('.message').transition('fade');
         });
     });
-    $("#header").sticky();
 </script>
 
 {% block extra %}{% endblock %}

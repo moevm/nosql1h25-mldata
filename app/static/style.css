@@ -97,22 +97,6 @@ body {
     background: #f8f9fa;
 }
 
-.ui.sticky.menu {
-    /* Начальное состояние (до скролла) */
-    background-color: rgba(255, 255, 255, 0); /* Полупрозрачный белый */
-
-    /* Анимации */
-    transition: all 0.4s ease, background-color 0.7s ease !important;
-}
-
-.ui.sticky.fixed.menu {
-    background-color: rgba(255, 255, 255, 1); /* Полная непрозрачность */
-}
-
-#cards-container {
-  scroll-margin-top: 85px; /* Высота вашего меню + отступ */
-}
-
 #filter-button {
     margin-top: 1em;
 }
