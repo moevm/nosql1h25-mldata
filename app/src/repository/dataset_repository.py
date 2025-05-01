@@ -109,7 +109,11 @@ class DatasetRepository:
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
             query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
-        cursor = db['DatasetInfoCollection'].find(query)
+        sort_query: list = []
+        if filters.sort is not None:
+            sort_query.append((filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1))
+
+        cursor = db['DatasetInfoCollection'].find(query).sort(sort_query)
 
         briefs: list = []
         for doc in cursor:

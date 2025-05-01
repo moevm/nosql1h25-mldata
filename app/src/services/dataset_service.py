@@ -2,10 +2,8 @@
 Содержит сервисы приложения. Сервис представляет бизнес-логику приложения.
 """
 import uuid
-from typing import Optional
 from datetime import datetime
-
-from bson import ObjectId
+from typing import Optional
 
 from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
@@ -74,7 +72,7 @@ class DatasetService:
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:
-        form_data = request.form
+        form_data: dict = request.form
 
         name: str = form_data['name']
 
@@ -90,11 +88,17 @@ class DatasetService:
         column_size_to: Optional[int] = int(float(form_data['column-size-to'])) if form_data[
                                                                                        'column-size-to'] != '' else None
 
-        creation_date_from: Optional[datetime] = datetime.strptime(form_data['creation-date-from'], '%Y-%m-%d') if form_data['creation-date-from'] != '' else None
-        creation_date_to: Optional[datetime] = datetime.strptime(form_data['creation-date-to'], '%Y-%m-%d') if form_data['creation-date-to'] != '' else None
+        creation_date_from: Optional[datetime] = datetime.strptime(form_data['creation-date-from'], '%Y-%m-%d') if \
+        form_data['creation-date-from'] != '' else None
+        creation_date_to: Optional[datetime] = datetime.strptime(form_data['creation-date-to'], '%Y-%m-%d') if \
+        form_data['creation-date-to'] != '' else None
 
-        modify_date_from: Optional[datetime] = datetime.strptime(form_data['modify-date-from'], '%Y-%m-%d') if form_data['modify-date-from'] != '' else None
-        modify_date_to: Optional[datetime] = datetime.strptime(form_data['modify-date-to'], '%Y-%m-%d') if form_data['modify-date-to'] != '' else None
+        modify_date_from: Optional[datetime] = datetime.strptime(form_data['modify-date-from'], '%Y-%m-%d') if \
+        form_data['modify-date-from'] != '' else None
+        modify_date_to: Optional[datetime] = datetime.strptime(form_data['modify-date-to'], '%Y-%m-%d') if form_data[
+                                                                                                               'modify-date-to'] != '' else None
+
+        sort: Optional[dict] = DatasetService._extract_sort(form_data)
 
         return FilterValues(
             name,
@@ -102,5 +106,25 @@ class DatasetService:
             row_size_from, row_size_to,
             column_size_from, column_size_to,
             creation_date_from, creation_date_to,
-            modify_date_from, modify_date_to
+            modify_date_from, modify_date_to,
+            sort
         )
+
+    @staticmethod
+    def _extract_sort(form_data: dict) -> Optional[dict]:
+        if form_data['size-sort'] != '':
+            return {'field': 'size', 'order': form_data['size-sort']}
+
+        if form_data['row-size-sort'] != '':
+            return {'field': 'rowCount', 'order': form_data['row-size-sort']}
+
+        if form_data['column-size-sort'] != '':
+            return {'field': 'columnCount', 'order': form_data['column-size-sort']}
+
+        if form_data['creation-date-sort'] != '':
+            return {'field': 'creationDate', 'order': form_data['creation-date-sort']}
+
+        if form_data['modify-date-sort'] != '':
+            return {'field': 'lastModifiedDate', 'order': form_data['modify-date-sort']}
+
+        return None
