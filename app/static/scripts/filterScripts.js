@@ -82,3 +82,12 @@ function createCard(brief) {
 
     return card
 }
+
+let sorts = $('#size-sort, #row-size-sort, #column-size-sort, #creation-date-sort, #modify-date-sort');
+sorts.on('change', (event) => {
+    const val = $(event.target).val();
+
+    if (val !== '') {
+        sorts.not(event.target).val('');
+    }
+});

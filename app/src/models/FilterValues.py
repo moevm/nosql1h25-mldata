@@ -15,7 +15,8 @@ class FilterValues:
                  row_size_from: Optional[int], row_size_to: Optional[int],
                  column_size_from: Optional[int], column_size_to: Optional[int],
                  creation_date_from: Optional[datetime], creation_date_to: Optional[datetime],
-                 modify_date_from: Optional[datetime], modify_date_to: Optional[datetime]):
+                 modify_date_from: Optional[datetime], modify_date_to: Optional[datetime],
+                 sort: Optional[dict]):
 
         self.name: str = name.strip()
 
@@ -33,3 +34,5 @@ class FilterValues:
 
         self.modify_date_from: Optional[datetime] = modify_date_from
         self.modify_date_to: Optional[datetime] = modify_date_to
+
+        self.sort: Optional[dict] = sort
