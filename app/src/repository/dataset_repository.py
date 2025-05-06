@@ -4,14 +4,17 @@
 """
 import os
 import re
+import shutil
+import subprocess
+import zipfile
+import tempfile
+from datetime import datetime, timedelta
+from glob import glob
+from io import BytesIO
+from typing import Any
+from typing import Optional, Tuple
 
 import pymongo
-from typing import Optional
-
-from datetime import datetime, timedelta
-
-from typing import Any
-from bson import ObjectId
 from flask import current_app, g
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
@@ -101,13 +104,16 @@ class DatasetRepository:
             query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
 
         if filters.column_size_from is not None or filters.column_size_to is not None:
-            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from,
+                                                                           filters.column_size_to)
 
         if filters.creation_date_from is not None or filters.creation_date_to is not None:
-            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from,
+                                                                            filters.creation_date_to)
 
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
-            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from,
+                                                                                filters.modify_date_to)
 
         sort_query: list = []
         if filters.sort is not None:
@@ -176,6 +182,52 @@ class DatasetRepository:
         db['DatasetInfoCollection'].delete_one(
             {'_id': dataset_id},
         )
+
+    @staticmethod
+    def export_datasets_archive() -> Tuple[BytesIO, str]:
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # Создаем временную структуру директорий
+            db_dump_dir = os.path.join(temp_dir, "mongodb_dump")
+            csv_dir = os.path.join(temp_dir, "datasets")
+            datasets_dir = "/app/datasets"
+
+            os.makedirs(db_dump_dir, exist_ok=True)
+            os.makedirs(csv_dir, exist_ok=True)
+
+            # 1. Делаем mongodump
+            mongodump_cmd = [
+                "mongodump",
+                "--uri", uri,
+                "--out", db_dump_dir
+            ]
+            subprocess.run(mongodump_cmd, check=True)
+
+            # 2. Копируем CSV файлы в отдельную директорию
+            if os.path.exists(datasets_dir):
+                for csv_file in glob(os.path.join(datasets_dir, "*.csv")):
+                    shutil.copy2(
+                        csv_file,
+                        os.path.join(csv_dir, os.path.basename(csv_file))
+                    )
+
+            # 3. Создаем ZIP-архив с правильной структурой
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, dirs, files in os.walk(temp_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        # Сохраняем файлы с относительными путями внутри архива
+                        arcname = os.path.relpath(file_path, temp_dir)
+                        zipf.write(file_path, arcname)
+
+            zip_buffer.seek(0)
+            return zip_buffer, f'dump_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
+
+        finally:
+            # Очищаем временные файлы
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     @staticmethod
     def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:

@@ -130,3 +130,15 @@ def download_dataset(dataset_id: str):
     return send_from_directory(
        directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
+
+
+@bp.route('/datasets/export', methods=['GET'])
+@admin_required
+def export_datasets() -> Response | BadRequest:
+    """
+    Обращается к методу контроллера для массового импорта датасетов.
+    """
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.export_datasets()

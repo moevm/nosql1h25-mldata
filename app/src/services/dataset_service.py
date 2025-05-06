@@ -3,12 +3,14 @@
 """
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 
 from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.repository.dataset_repository import DatasetRepository
+
+from io import BytesIO
 
 
 class DatasetService:
@@ -69,6 +71,10 @@ class DatasetService:
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         return DatasetRepository.remove_dataset(dataset_id)
+
+    @staticmethod
+    def export_datasets_archive() -> Tuple[BytesIO, str]:
+        return DatasetRepository.export_datasets_archive()
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:
