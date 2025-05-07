@@ -132,6 +132,15 @@ def download_dataset(dataset_id: str):
     )
 
 
+@bp.route('/datasets/instruments', methods=['GET'])
+@admin_required
+def get_instruments() -> str | BadRequest:
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.render_instruments();
+
+
 @bp.route('/datasets/export', methods=['GET'])
 @admin_required
 def export_datasets() -> Response | BadRequest:

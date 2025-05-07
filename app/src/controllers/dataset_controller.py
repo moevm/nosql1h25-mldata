@@ -136,6 +136,10 @@ class DatasetController:
         return dataset
 
     @staticmethod
+    def render_instruments() -> str:
+        return render_template('temp.html')
+
+    @staticmethod
     def export_datasets() -> Response:
         """
         Обращается к методу сервиса для получения архива, содержащего дамп БД.
