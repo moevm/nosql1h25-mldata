@@ -204,7 +204,13 @@ class DatasetRepository:
             ]
             subprocess.run(mongodump_cmd, check=True)
 
-            # 2. Копируем CSV файлы в отдельную директорию
+            # 2. Конвертируем BSON → JSON через bsondump
+            bson_files = glob(os.path.join(db_dump_dir, db_name, "*.bson"))
+            for bson_file in bson_files:
+                json_file = bson_file.replace(".bson", ".json")
+                subprocess.run(["bsondump", "--outFile", json_file, bson_file], check=True)
+
+            # 3. Копируем CSV файлы в отдельную директорию
             if os.path.exists(datasets_dir):
                 for csv_file in glob(os.path.join(datasets_dir, "*.csv")):
                     shutil.copy2(
@@ -212,7 +218,7 @@ class DatasetRepository:
                         os.path.join(csv_dir, os.path.basename(csv_file))
                     )
 
-            # 3. Создаем ZIP-архив с правильной структурой
+            # 4. Создаем ZIP-архив с правильной структурой
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 for root, dirs, files in os.walk(temp_dir):
