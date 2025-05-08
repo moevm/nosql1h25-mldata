@@ -157,6 +157,19 @@ class DatasetController:
         return response
 
     @staticmethod
+    def import_datasets(request: Request) -> Response:
+        """
+        Обращается к методу сервиса для загрузки архива, содержащего дамп БД.
+        """
+        backup: FileStorage = request.files['backup']
+        DatasetService.import_datasets_archive(backup)
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/'
+        return response
+
+
+    @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:
         form_data = request.form
         dataset_name: str = form_data['name']

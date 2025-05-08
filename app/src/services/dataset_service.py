@@ -9,6 +9,7 @@ from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.repository.dataset_repository import DatasetRepository
+from werkzeug.datastructures import FileStorage
 
 from io import BytesIO
 
@@ -75,6 +76,10 @@ class DatasetService:
     @staticmethod
     def export_datasets_archive() -> Tuple[BytesIO, str]:
         return DatasetRepository.export_datasets_archive()
+
+    @staticmethod
+    def import_datasets_archive(backup: FileStorage) -> None:
+        return DatasetRepository.import_datasets_archive(backup)
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:

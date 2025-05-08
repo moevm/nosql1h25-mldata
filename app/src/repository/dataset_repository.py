@@ -6,8 +6,8 @@ import os
 import re
 import shutil
 import subprocess
-import zipfile
 import tempfile
+import zipfile
 from datetime import datetime, timedelta
 from glob import glob
 from io import BytesIO
@@ -18,6 +18,7 @@ import pymongo
 from flask import current_app, g
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
+from werkzeug.datastructures import FileStorage
 from werkzeug.local import LocalProxy
 
 from src.models.Dataset import Dataset
@@ -208,7 +209,7 @@ class DatasetRepository:
             bson_files = glob(os.path.join(db_dump_dir, db_name, "*.bson"))
             for bson_file in bson_files:
                 json_file = bson_file.replace(".bson", ".json")
-                subprocess.run(["bsondump", "--outFile", json_file, bson_file], check=True)
+                subprocess.run(["bsondump", "--pretty", "--outFile", json_file, bson_file], check=True)
 
             # 3. Копируем CSV файлы в отдельную директорию
             if os.path.exists(datasets_dir):
@@ -230,6 +231,45 @@ class DatasetRepository:
 
             zip_buffer.seek(0)
             return zip_buffer, f'dump_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
+
+        finally:
+            # Очищаем временные файлы
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    @staticmethod
+    def import_datasets_archive(backup: FileStorage) -> None:
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # Сохраняем архив
+            backup_path = os.path.join(temp_dir, backup.filename)
+            backup.save(backup_path)
+
+            # Распаковываем
+            with zipfile.ZipFile(backup_path, 'r') as zip_ref:
+                zip_ref.extractall(temp_dir)
+
+            db_dump_dir = os.path.join(temp_dir, "mongodb_dump", db_name)
+            csv_dir = os.path.join(temp_dir, "datasets")
+            datasets_dir = "/app/datasets"
+
+            # Удаляем старые CSV
+            for item in os.listdir(datasets_dir):
+                os.remove(os.path.join(datasets_dir, item))
+
+            # Копируем новые
+            if os.path.exists(csv_dir):
+                for item in os.listdir(csv_dir):
+                    shutil.copy2(os.path.join(csv_dir, item), os.path.join(datasets_dir, item))
+
+            # Восстановление MongoDB
+            cmd = [
+                'mongorestore',
+                '--uri', uri,
+                '--drop',
+                db_dump_dir
+            ]
+            subprocess.run(cmd, check=True)
 
         finally:
             # Очищаем временные файлы

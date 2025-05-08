@@ -49,8 +49,19 @@
             fileError.style.display = 'none';
         }
 
-        // const form = document.getElementById('upload-form');
-        // const formData = new FormData(form);
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
+
+        fetch("http://127.0.0.1:5000/datasets/import", {
+            method: 'POST',
+            body: formData,
+        }).then(response => {
+            if (!response.ok)
+                throw new Error('Response is not ok');
+            window.location.href = response.headers.get('redirect');
+        }).catch(error => {
+            console.error('Error:', error);
+        });
     });
 
     fileInput.addEventListener('change', (e) => {
