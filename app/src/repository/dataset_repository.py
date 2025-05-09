@@ -10,9 +10,9 @@ from typing import Optional
 
 from datetime import datetime, timedelta
 
-from typing import Any
+from typing import Optional, List, Any
 from bson import ObjectId
-from flask import current_app, g
+from flask import current_app, g, logging
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy
@@ -109,24 +109,40 @@ class DatasetRepository:
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
             query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
-        sort_query: list = []
-        if filters.sort is not None:
-            sort_query.append((filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1))
+        sort_query: List[tuple[str, int]] = []
+        if filters.sort and \
+           isinstance(filters.sort, dict) and \
+           filters.sort.get('field') and \
+           filters.sort.get('order'):
+            
+            field_to_sort = filters.sort['field']
+            sort_order_str = filters.sort['order'].lower()
+            
+            mongo_order = pymongo.ASCENDING if sort_order_str == 'asc' else pymongo.DESCENDING
+            sort_query.append((field_to_sort, mongo_order))
+        else:
+            default_sort_field = "name"
+            default_sort_order = pymongo.ASCENDING
+            sort_query.append((default_sort_field, default_sort_order))
 
-        cursor = db['DatasetInfoCollection'].find(query).sort(sort_query)
-
-        briefs: list = []
-        for doc in cursor:
-            briefs.append(
-                DatasetBrief(
-                    dataset_id=str(doc.get('_id')),
-                    dataset_name=doc.get('name', 'N/A'),
-                    dataset_description=doc.get('description', ''),
-                    dataset_type="CSV",
-                    dataset_size=doc.get('size', 0)
+        briefs: List[DatasetBrief] = []
+        try:
+            cursor = db.DatasetInfoCollection.find(query).sort(sort_query)
+            
+            for doc in cursor:
+                briefs.append(
+                    DatasetBrief(
+                        dataset_id=str(doc.get('_id')),
+                        dataset_name=doc.get('name', 'N/A'),
+                        dataset_description=doc.get('description', ''),
+                        dataset_type="CSV",
+                        dataset_size=doc.get('size', 0)
+                    )
                 )
-            )
-
+        except ValueError as ve:
+            pass
+        except Exception as e:
+            pass
         return briefs
 
     @staticmethod
@@ -134,11 +150,13 @@ class DatasetRepository:
         """
         Добавляет датасет в БД.
         """
-        # потенциально может случиться такое, что uuid нагенерит два одинаковых id
-        # и тут из-за этого все упадет
-        # надо обернуть в try-catch и в блоке catch перегенерить id
-        inserted: InsertOneResult = db['DatasetInfoCollection'].insert_one(dataset.to_dict())
-        return inserted.inserted_id
+        try:
+            inserted: InsertOneResult = db.DatasetInfoCollection.insert_one(dataset.to_dict())
+            return str(inserted.inserted_id)
+        except pymongo.errors.DuplicateKeyError as e:
+            raise
+        except Exception as e:
+            raise
 
     @staticmethod
     def edit_dataset(dataset: Dataset) -> None:
@@ -178,19 +196,20 @@ class DatasetRepository:
         )
 
     @staticmethod
-    def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:
-        INT64_MAX: int = 9223372036854775807
-        DATETIME_MAX: datetime = datetime.today() + timedelta(days=1)
-
-        query: dict = {}
-        if from_ is not None:
-            if isinstance(from_, datetime):
-                query['$gte'] = min(from_, DATETIME_MAX)
+    def _create_from_to_query(
+        from_val: Optional[Any], 
+        to_val: Optional[Any], 
+        is_date: bool = False
+    ) -> dict:
+        query_part: dict = {}
+        
+        if from_val is not None:
+            query_part['$gte'] = from_val
+        
+        if to_val is not None:
+            if is_date and isinstance(to_val, datetime):
+                query_part['$lt'] = to_val + timedelta(days=1)
             else:
-                query['$gte'] = min(from_, INT64_MAX)
-        if to_ is not None:
-            if isinstance(to_, datetime):
-                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
-            else:
-                query['$lte'] = min(to_, INT64_MAX)
-        return query
+                query_part['$lte'] = to_val
+                
+        return query_part

@@ -2,13 +2,16 @@
 Содержит сервисы приложения. Сервис представляет бизнес-логику приложения.
 """
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
+
+from flask_login import current_user
 
 from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.repository.dataset_repository import DatasetRepository
+from src.repository.user_repository import UserRepository
 
 
 class DatasetService:
@@ -31,21 +34,36 @@ class DatasetService:
         return DatasetRepository.get_filtered_briefs(filters)
 
     @staticmethod
-    def save_dataset(form_values: DatasetFormValues, author: str, filepath: str) -> str:
+    def save_dataset(form_values: DatasetFormValues, author_username: str, filepath: str) -> str:
         """
         Создает объект Dataset на основе `form_values`.
         Обращается к методу репозитория для добавления датасета в БД.
+        Обновляет статистику пользователя.
         """
         dataset_id: str = str(uuid.uuid4())
-        dataset_csv: Dataset = Dataset.from_form_values(form_values, dataset_id, author, filepath)
+        dataset_csv: Dataset = Dataset.from_form_values(form_values, dataset_id, author_username, filepath)
 
-        return DatasetRepository.add_dataset(dataset_csv)
+        inserted_id = DatasetRepository.add_dataset(dataset_csv)
+
+        if current_user and current_user.is_authenticated:
+            user = UserRepository.find_by_id(current_user.id)
+            if user:
+                update_payload = {
+                    'createdDatasetsCount': user.createdDatasetsCount + 1,
+                    'lastAccountModificationDate': datetime.now(timezone.utc)
+                }
+                UserRepository.update_user_fields(user.id, update_payload)
+                current_user.createdDatasetsCount = user.createdDatasetsCount + 1
+                current_user.lastAccountModificationDate = update_payload['lastAccountModificationDate']
+
+        return inserted_id
 
     @staticmethod
-    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor: str, filepath: str) -> None:
+    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
         """
         Создает объект Dataset на основе `form_values`.
         Обращается к методу репозитория для изменения датасета в БД.
+        Обновляет дату последнего изменения аккаунта пользователя.
         """
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
 
@@ -58,9 +76,16 @@ class DatasetService:
 
         dataset.dataset_creation_date = old_dataset.dataset_creation_date
         dataset.dataset_version = old_dataset.dataset_version + 1
-        dataset.dataset_last_editor = editor
+        dataset.dataset_last_editor = editor_username
 
         DatasetRepository.edit_dataset(dataset)
+
+        if current_user and current_user.is_authenticated:
+            update_payload = {
+                'lastAccountModificationDate': datetime.now(timezone.utc)
+            }
+            UserRepository.update_user_fields(current_user.id, update_payload)
+            current_user.lastAccountModificationDate = update_payload['lastAccountModificationDate']
 
     @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
@@ -69,6 +94,7 @@ class DatasetService:
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         return DatasetRepository.remove_dataset(dataset_id)
+
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:
