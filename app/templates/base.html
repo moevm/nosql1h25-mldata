@@ -31,7 +31,10 @@
                href="{{ url_for('auth.index') }}">
                 <i class="ui shield alternate icon"></i> Admin Panel
             </a>
-            {% endif %}
+            {% endif %}       
+            <a class="header item {% if request.endpoint == 'auth.profile' %}active{% endif %}" href="{{ url_for('auth.profile') }}">
+                <i class="address card outline icon"></i> Профиль
+            </a>
             <a class="header item" href="{{ url_for('auth.logout') }}">
                 <i class="ui sign out alternate icon"></i> Выйти
             </a>
