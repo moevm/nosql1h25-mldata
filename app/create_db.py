@@ -293,8 +293,8 @@ def add_examples() -> None:
             "password": admin_pass_hash,
             "status": 0,
             "createdDatasetsCount": 0,
-            "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
         })
 
     # Regular User
@@ -307,8 +307,9 @@ def add_examples() -> None:
             "login": "vasily",
             "password": user_pass_hash,
             "status": 1,
-            "createdDatasetsCount": 1,
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+            "createdDatasetsCount": 0,
+            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
         })
 
 
