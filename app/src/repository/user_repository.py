@@ -36,7 +36,7 @@ class UserRepository:
             print("UserRepository: Database connection not available.")
             return None
         try: 
-            user_data = db.User.find_one({"login": login})
+            user_data = db.UserCollection.find_one({"login": login})
             if user_data:
                 return User(user_data)
         except Exception as e:
@@ -54,7 +54,7 @@ class UserRepository:
             print("UserRepository: Database connection not available.")
             return None
         try:
-            user_data = db.User.find_one({"_id": user_id})
+            user_data = db.UserCollection.find_one({"_id": user_id})
 
             if user_data:
                 return User(user_data)

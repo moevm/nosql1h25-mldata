@@ -30,7 +30,7 @@ db = client[db_name]
 
 
 def add_examples() -> None:
-    if not db.DatasetInfoCollection.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
+    if not db.DatasetInfoCollection.find().to_list():
         shutil.copytree("/app/example-datasets", "/app/datasets", dirs_exist_ok=True)
         db.DatasetInfoCollection.insert_many([
             {
@@ -77,8 +77,8 @@ def add_examples() -> None:
             }
         ])
 
-    if not db.DatasetActivity.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
-        db.DatasetActivity.insert_many([
+    if not db.DatasetActivityCollection.find().to_list():
+        db.DatasetActivityCollection.insert_many([
             {
                 "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
                 "statistics": {
@@ -232,8 +232,7 @@ def add_examples() -> None:
             },
         ])
 
-    if not db.DatasetGraphsCollection.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
-
+    if not db.DatasetGraphsCollection.find().to_list():
         plt.plot([1, 2, 3, 4])
         plt.ylabel('some numbers')
         plt.savefig('test.svg')
@@ -269,9 +268,9 @@ def add_examples() -> None:
                 }
             ])
 
-    if not db.User.find_one({"_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"}):
+    if not db.UserCollection.find_one({"_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"}):
         john_pass_hash = generate_password_hash("pa$$word123")
-        db.User.insert_one({
+        db.UserCollection.insert_one({
             "_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1",
             "username": "John Sales",
             "login": "john.sales@company.com",
@@ -284,9 +283,9 @@ def add_examples() -> None:
 
     # Admin 
     admin_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p0"
-    if not db.User.find_one({"_id": admin_id}):
+    if not db.UserCollection.find_one({"_id": admin_id}):
         admin_pass_hash = generate_password_hash("0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd")
-        db.User.insert_one({
+        db.UserCollection.insert_one({
             "_id": admin_id,
             "username": "Administrator",
             "login": "administrator",
@@ -299,9 +298,9 @@ def add_examples() -> None:
 
     # Regular User
     user_id = "09365d4b-af81-42ae-89b8-54f232c0c8fb"
-    if not db.User.find_one({"_id": user_id}):
+    if not db.UserCollection.find_one({"_id": user_id}):
         user_pass_hash = generate_password_hash("AuQ5UIkdEiQ0tpH8")
-        db.User.insert_one({
+        db.UserCollection.insert_one({
             "_id": user_id,
             "username": "Vasily Pupkin",
             "login": "vasily",

@@ -137,3 +137,35 @@ def download_dataset(dataset_id: str):
     return send_from_directory(
        directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
+
+
+@bp.route('/datasets/instruments', methods=['GET'])
+@admin_required
+def get_instruments() -> str | BadRequest:
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.render_instruments()
+
+
+@bp.route('/datasets/export', methods=['GET'])
+@admin_required
+def export_datasets() -> Response | BadRequest:
+    """
+    Обращается к методу контроллера для массового экспорта датасетов.
+    """
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.export_datasets()
+
+@bp.route('/datasets/import', methods=['POST'])
+@admin_required
+def import_datasets() -> Response | BadRequest:
+    """
+    Обращается к методу контроллера для массового импорта датасетов.
+    """
+    if request.method != 'POST':
+        return BadRequest('Invalid method')
+
+    return DatasetController.import_datasets(request)

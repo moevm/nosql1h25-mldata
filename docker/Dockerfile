@@ -2,7 +2,12 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache netcat-openbsd
+RUN apk add --no-cache \
+    netcat-openbsd \
+    libc6-compat
+COPY --from=mongo:6.0 /usr/bin/mongodump /usr/local/bin/
+COPY --from=mongo:6.0 /usr/bin/bsondump /usr/local/bin/
+COPY --from=mongo:6.0 /usr/bin/mongorestore /usr/local/bin/
 
 COPY ./app/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
