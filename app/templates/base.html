@@ -22,19 +22,16 @@
 
 
         <div class="right menu">
-            {% if current_user and current_user.is_authenticated %}
-            <span class="header item">
-                     <i class="user circle icon"></i> {{ current_user.username }}
-            </span>
+            {% if current_user and current_user.is_authenticated %}     
+            <a class="header item {% if request.endpoint == 'auth.profile' %}active{% endif %}" href="{{ url_for('auth.profile') }}">
+                <i class="user circle icon"></i> {{ current_user.username }}
+            </a>
             {% if current_user.is_admin %}
             <a class="header center item {% if request.endpoint.startswith('admin.') %}active{% endif %}"
                href="{{ url_for('auth.index') }}">
                 <i class="ui shield alternate icon"></i> Admin Panel
             </a>
-            {% endif %}       
-            <a class="header item {% if request.endpoint == 'auth.profile' %}active{% endif %}" href="{{ url_for('auth.profile') }}">
-                <i class="address card outline icon"></i> Профиль
-            </a>
+            {% endif %}
             <a class="header item" href="{{ url_for('auth.logout') }}">
                 <i class="ui sign out alternate icon"></i> Выйти
             </a>
