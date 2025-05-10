@@ -109,40 +109,24 @@ class DatasetRepository:
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
             query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
-        sort_query: List[tuple[str, int]] = []
-        if filters.sort and \
-           isinstance(filters.sort, dict) and \
-           filters.sort.get('field') and \
-           filters.sort.get('order'):
-            
-            field_to_sort = filters.sort['field']
-            sort_order_str = filters.sort['order'].lower()
-            
-            mongo_order = pymongo.ASCENDING if sort_order_str == 'asc' else pymongo.DESCENDING
-            sort_query.append((field_to_sort, mongo_order))
-        else:
-            default_sort_field = "name"
-            default_sort_order = pymongo.ASCENDING
-            sort_query.append((default_sort_field, default_sort_order))
+        sort_query: list = []
+        if filters.sort is not None:
+            sort_query.append((filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1))
 
-        briefs: List[DatasetBrief] = []
-        try:
-            cursor = db.DatasetInfoCollection.find(query).sort(sort_query)
-            
-            for doc in cursor:
-                briefs.append(
-                    DatasetBrief(
-                        dataset_id=str(doc.get('_id')),
-                        dataset_name=doc.get('name', 'N/A'),
-                        dataset_description=doc.get('description', ''),
-                        dataset_type="CSV",
-                        dataset_size=doc.get('size', 0)
-                    )
+        cursor = db['DatasetInfoCollection'].find(query).sort(sort_query)
+
+        briefs: list = []
+        for doc in cursor:
+            briefs.append(
+                DatasetBrief(
+                    dataset_id=str(doc.get('_id')),
+                    dataset_name=doc.get('name', 'N/A'),
+                    dataset_description=doc.get('description', ''),
+                    dataset_type="CSV",
+                    dataset_size=doc.get('size', 0)
                 )
-        except ValueError as ve:
-            pass
-        except Exception as e:
-            pass
+            )
+
         return briefs
 
     @staticmethod
