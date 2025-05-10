@@ -10,9 +10,9 @@ from typing import Optional
 
 from datetime import datetime, timedelta
 
-from typing import Any
+from typing import Optional, List, Any
 from bson import ObjectId
-from flask import current_app, g
+from flask import current_app, g, logging
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy

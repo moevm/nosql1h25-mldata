@@ -4,7 +4,7 @@
 import os
 from pathlib import PosixPath, Path
 
-from flask import render_template, Request, Response, current_app, make_response, jsonify
+from flask import render_template, Request, Response, current_app, make_response, jsonify, flash, redirect, url_for
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
@@ -18,6 +18,23 @@ class DatasetController:
     """
     Класс-контроллер для запросов, связанных с датасетами.
     """
+    @staticmethod
+    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
+        old_dataset: Dataset = DatasetService.get_dataset(dataset_id)
+
+        dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
+                                                    filepath)
+        
+        if not form_values.dataset_data:
+            dataset.dataset_columns = old_dataset.dataset_columns
+            dataset.dataset_rows = old_dataset.dataset_rows
+            dataset.dataset_size = old_dataset.dataset_size
+
+        dataset.dataset_creation_date = old_dataset.dataset_creation_date
+        dataset.dataset_version = old_dataset.dataset_version + 1
+        dataset.dataset_last_editor = editor_username
+
+        DatasetService.edit_dataset(dataset)
 
     @staticmethod
     def render_all_datasets() -> str:
@@ -56,7 +73,7 @@ class DatasetController:
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
-        dataset_id = DatasetService.save_dataset(form_values, author=username, filepath=filepath)
+        dataset_id = DatasetService.save_dataset(form_values, author_username=username, filepath=filepath)
 
         filepath = os.path.join(filepath, f'{dataset_id}.csv')
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -96,7 +113,7 @@ class DatasetController:
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/{dataset_id}'
         return response
-
+    
     @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
@@ -119,7 +136,7 @@ class DatasetController:
             with open(filepath, 'w') as file:
                 file.writelines(form_values.dataset_data)
 
-        DatasetService.update_dataset(dataset_id, form_values, editor=username,
+        DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
                                       filepath=current_app.config['UPLOAD_FOLDER'])
 
         response: Response = make_response()
