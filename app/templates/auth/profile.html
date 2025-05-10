@@ -4,11 +4,8 @@
 {% block menu %}
     <!-- "Back to main menu" button in the left upper corner -->
     <a class="header item" href="{{ url_for('datasets.get_datasets') }}">
-        <i class="arrow left icon"></i> Главная
+        <i class="icon"></i> Главная
     </a>
-    <div class="right menu">
-        <!-- Current nickname (username) on top right of the page - handled by base.html -->
-    </div>
 {% endblock %}
 
 {% block content %}
@@ -38,9 +35,6 @@
             <div class="ui input disabled">
                  <input type="text" id="login" name="login" value="{{ current_user.login }}" readonly>
             </div>
-            <div class="ui pointing label basic">
-                Логин
-            </div>
         </div>
 
         <h4 class="ui dividing header">Изменить пароль</h4>
@@ -55,7 +49,7 @@
             <input type="password" id="confirm_new_password" name="confirm_new_password" minlength="6" autocomplete="new-password">
         </div>
 
-        <button class="ui primary button" type="submit">
+        <button class="ui secondary button" type="submit">
             <i class="save icon"></i> Сохранить изменения
         </button>
         <a class="ui button" href="{{ url_for('datasets.get_datasets') }}">
