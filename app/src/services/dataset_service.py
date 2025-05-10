@@ -92,9 +92,12 @@ class DatasetService:
         return DatasetRepository.get_dataset(dataset_id)
 
     @staticmethod
+    def edit_dataset(dataset_id: str) -> Dataset:
+        return DatasetRepository.edit_dataset(dataset_id)
+
+    @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         return DatasetRepository.remove_dataset(dataset_id)
-
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:

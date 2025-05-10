@@ -20,7 +20,7 @@ class DatasetController:
     """
     @staticmethod
     def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
-        old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
+        old_dataset: Dataset = DatasetService.get_dataset(dataset_id)
 
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
                                                     filepath)
@@ -34,7 +34,7 @@ class DatasetController:
         dataset.dataset_version = old_dataset.dataset_version + 1
         dataset.dataset_last_editor = editor_username
 
-        DatasetRepository.edit_dataset(dataset)
+        DatasetService.edit_dataset(dataset)
 
     @staticmethod
     def render_all_datasets() -> str:
@@ -65,40 +65,20 @@ class DatasetController:
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
         """
-        author_username = 'noname_author'
-        if current_user and current_user.is_authenticated:
-            author_username = current_user.username
-        else:
-            flash("Ошибка: Пользователь не авторизован для добавления датасета.", "danger")
-            response: Response = make_response()
-            response.headers['redirect'] = url_for('auth.login')
-            return response
-
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
-        
-        if form_values.dataset_data is None and request.files.get('dataset') and request.files['dataset'].filename != '':
-             flash("Ошибка при обработке файла датасета. Пожалуйста, убедитесь, что файл в кодировке UTF-8.", "danger")
-             response: Response = make_response()
-             response.headers['redirect'] = url_for('datasets.render_add_dataset') 
-             return response
 
+        filepath: str = current_app.config['UPLOAD_FOLDER']
+        dataset_id = DatasetService.save_dataset(form_values, author_username=username, filepath=filepath)
 
-        upload_folder_path_str: str = current_app.config['UPLOAD_FOLDER']
-        dataset_id = DatasetService.save_dataset(form_values, author_username=author_username, filepath=upload_folder_path_str)
-
-        if form_values.dataset_data is not None:
-            filepath_to_save = Path(upload_folder_path_str) / f'{dataset_id}.csv'
-            filepath_to_save.parent.mkdir(parents=True, exist_ok=True)
-            try:
-                with open(filepath_to_save, 'w', encoding='utf-8') as file:
-                    file.write(form_values.dataset_data)
-            except Exception as e:
-                current_app.logger.error(f"Error writing dataset file {filepath_to_save}: {e}")
-                flash("Датасет добавлен в базу, но произошла ошибка при сохранении файла.", "warning")
-        else:
-            flash("Файл датасета не был загружен или не удалось его обработать.", "warning")
-
+        filepath = os.path.join(filepath, f'{dataset_id}.csv')
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'x') as file:
+            file.writelines(form_values.dataset_data)
 
         response: Response = make_response()
         response.headers['redirect'] = '/datasets/'
@@ -133,6 +113,35 @@ class DatasetController:
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/{dataset_id}'
         return response
+    
+    @staticmethod
+    def edit_dataset(dataset_id: str, request: Request) -> Response:
+        """
+        Создается объект DatasetFormData из данных request'а.
+        Обращается к методу сервиса для изменения датасета в БД.
+        Сохраняется файл в выделенной директории.
+        Возвращается response, содержащий URL страницы, открываемой после добавления.
+        """
+
+        try:
+            username = current_user.username
+        except Exception:
+            username = 'noname'
+
+        form_values: DatasetFormValues = DatasetController._extract_form_values(request)
+
+        if request.files['dataset']:
+            filepath: str = current_app.config['UPLOAD_FOLDER']
+            filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
+            with open(filepath, 'w') as file:
+                file.writelines(form_values.dataset_data)
+
+        DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
+                                      filepath=current_app.config['UPLOAD_FOLDER'])
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/'
+        return response
 
     @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
@@ -143,80 +152,11 @@ class DatasetController:
         return dataset
 
     @staticmethod
-    def _extract_form_values(request: Request) -> DatasetFormValues:
+    def _extract_form_values(request) -> DatasetFormValues:
         form_data = request.form
-        dataset_name: str = form_data.get('name', '').strip()
-        dataset_description: str = form_data.get('description', '').strip()
+        dataset_name: str = form_data['name']
+        dataset_description: str = form_data['description']
 
-        dataset_data_str: str | None = None
-        dataset_fs: FileStorage | None = request.files.get('dataset')
-
-        if dataset_fs and dataset_fs.filename:
-            current_app.logger.debug(f"Processing uploaded file: {dataset_fs.filename}")
-            try:
-                file_content_bytes = dataset_fs.read()
-                dataset_data_str = file_content_bytes.decode('utf-8').strip()
-                if not dataset_data_str:
-                    dataset_data_str = None
-                    current_app.logger.debug("Uploaded file content is empty after stripping.")
-            except UnicodeDecodeError:
-                current_app.logger.warning(
-                    f"UnicodeDecodeError processing file {dataset_fs.filename}. Trying latin-1."
-                )
-                try:
-                    dataset_fs.seek(0) 
-                    file_content_bytes = dataset_fs.read()
-                    dataset_data_str = file_content_bytes.decode('latin-1').strip()
-                    if not dataset_data_str: dataset_data_str = None
-                except Exception as e_latin1:
-                    current_app.logger.error(
-                        f"Could not decode file {dataset_fs.filename} with UTF-8 or latin-1: {e_latin1}"
-                    )
-                    dataset_data_str = None
-            except Exception as e:
-                current_app.logger.error(f"Error reading file content from {dataset_fs.filename}: {e}")
-                dataset_data_str = None
-        else:
-            current_app.logger.debug("No new file uploaded or file field was empty.")
-            
-        return DatasetFormValues(dataset_name, dataset_description, dataset_data_str)
-
-    @staticmethod
-    def edit_dataset(dataset_id: str, request: Request) -> Response:
-        editor_username = 'noname_editor'
-        if current_user and current_user.is_authenticated:
-            editor_username = current_user.username
-        else:
-            return jsonify({"success": False, "message": "Ошибка: Пользователь не авторизован."}), 401
-
-        form_values: DatasetFormValues = DatasetController._extract_form_values(request)
-        upload_folder_directory: str = current_app.config['UPLOAD_FOLDER']
-
-        if request.files.get('dataset') and request.files.get('dataset').filename and form_values.dataset_data is None:
-            return jsonify({"success": False, "message": "Ошибка при обработке загруженного файла. Файл не был обновлен. Пожалуйста, проверьте кодировку (UTF-8)."}), 400
-
-        if form_values.dataset_data is not None and request.files.get('dataset') and request.files.get('dataset').filename:
-            full_csv_path_to_write = Path(upload_folder_directory) / f'{dataset_id}.csv'
-            full_csv_path_to_write.parent.mkdir(parents=True, exist_ok=True)
-            try:
-                with open(full_csv_path_to_write, 'w', encoding='utf-8') as file_out:
-                    file_out.write(form_values.dataset_data)
-            except Exception as e:
-                current_app.logger.error(f"Error writing updated dataset file {full_csv_path_to_write}: {e}")
-                
-        try:
-            DatasetService.update_dataset(dataset_id, form_values, 
-                                          editor_username=editor_username, 
-                                          filepath=upload_folder_directory)
-            
-            success_message = "Информация о датасете успешно обновлена."
-            redirect_url_target = url_for('datasets.get_dataset', dataset_id=dataset_id, _external=False)
-            return jsonify({
-                "success": True, 
-                "message": success_message, 
-                "redirect_url": redirect_url_target
-            }), 200
-
-        except Exception as e:
-            current_app.logger.error(f"Error in DatasetService.update_dataset for {dataset_id}: {e}", exc_info=True)
-            return jsonify({"success": False, "message": "Произошла ошибка при обновлении информации о датасете."}), 500
+        dataset_fs: FileStorage = request.files['dataset']
+        dataset_data = '\n'.join([v.decode('utf-8').strip() for v in dataset_fs.readlines()])
+        return DatasetFormValues(dataset_name, dataset_description, dataset_data)
