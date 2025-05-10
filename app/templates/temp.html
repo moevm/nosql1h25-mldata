@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="ui header">Импорт данных</h1>
+
+    <div class="ui segment">
+        <form id="upload-form" class="ui form">
+            <div class="ui container" style="padding: 20px">
+                <input type="file" name="backup" id="zipUpload" accept=".zip" hidden>
+                <label for="zipUpload" class="ui huge fluid basic secondary button">
+                    <i class="file csv outline icon"></i>
+                    <span id="button-label">Загрузить ZIP файл</span>
+                </label>
+                <div id="file-error" class="ui basic red pointing prompt label" style="display: none;">
+                    Загрузите ZIP файл
+                </div>
+            </div>
+        </form>
+
+        <button id="upload-button" class="ui secondary button" form="upload-form">
+            <i class="upload icon"></i> Импорт
+        </button>
+    </div>
+
+    <h1 class="ui header">Экспорт данных</h1>
+
+    <div class="ui segment">
+        <a type="submit" class="ui secondary button" href="/datasets/export">
+            <i class="save icon"></i> Экспорт
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+<script>
+    const fileInput = document.getElementById('zipUpload');
+    const fileError = document.getElementById('file-error');
+
+    const uploadForm = document.getElementById('upload-form');
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            fileError.style.display = 'block';
+            return;
+        } else {
+            fileError.style.display = 'none';
+        }
+
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
+
+        fetch("http://127.0.0.1:5000/datasets/import", {
+            method: 'POST',
+            body: formData,
+        }).then(response => {
+            if (!response.ok)
+                throw new Error('Response is not ok');
+            window.location.href = response.headers.get('redirect');
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        e.preventDefault();
+
+        const label = document.getElementById('button-label');
+
+        if (e.target.files.length > 0) {
+            document.getElementById('file-error').style.display = 'none';
+            label.textContent = e.target.files[0].name;
+        } else {
+            label.textContent = 'Загрузить ZIP файл';
+        }
+    });
+</script>
+{% endblock %}
