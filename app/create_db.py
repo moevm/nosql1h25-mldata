@@ -232,14 +232,14 @@ def add_examples() -> None:
             },
         ])
 
-    if not db.DatasetGraphs.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
+    if not db.DatasetGraphsCollection.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
 
         plt.plot([1, 2, 3, 4])
         plt.ylabel('some numbers')
         plt.savefig('test.svg')
 
         with open('test.svg', 'rb') as f:
-            db.DatasetGraphs.insert_many([
+            db.DatasetGraphsCollection.insert_many([
                 {
                     "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
                     "graphs": [

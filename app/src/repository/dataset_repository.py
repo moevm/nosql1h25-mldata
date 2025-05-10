@@ -11,7 +11,6 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 from typing import Any
-from bson import ObjectId
 from flask import current_app, g
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
@@ -141,6 +140,16 @@ class DatasetRepository:
         return inserted.inserted_id
 
     @staticmethod
+    def add_plots(dataset_id: str, graphs: dict[int, bytes]) -> None:
+        """
+        Добавляет графики в БД.
+        """
+        if graphs:
+            db['DatasetGraphsCollection'].insert_one(
+                {'_id': dataset_id, 'graphs': graphs},
+            )
+
+    @staticmethod
     def edit_dataset(dataset: Dataset) -> None:
         """
         Изменяет датасет в БД.
@@ -148,6 +157,16 @@ class DatasetRepository:
         db['DatasetInfoCollection'].update_one(
             {'_id': dataset.dataset_id},
             {'$set': dataset.to_dict()}
+        )
+
+    @staticmethod
+    def edit_plots(dataset_id: str, graphs: dict[int, bytes]) -> None:
+        """
+        Изменяет графики для датасета в БД
+        """
+        db['DatasetGraphsCollection'].update_one(
+            {'_id': dataset_id},
+            {'$set': {'graphs': graphs}}
         )
 
     @staticmethod
@@ -169,12 +188,31 @@ class DatasetRepository:
         return info
 
     @staticmethod
+    def get_plots(dataset_id: str) -> Optional[list[dict]]:
+        """
+        Получить список всех графиков для датасета
+        """
+        collection = db['DatasetGraphsCollection']
+        res = collection.find_one({'_id': dataset_id})
+        if res and 'graphs' in res and res['graphs'] is not None:
+            return res['graphs']
+
+    @staticmethod
     def remove_dataset(dataset_id: str) -> None:
         """
         Удаляет датасет из БД.
         """
         db['DatasetInfoCollection'].delete_one(
             {'_id': dataset_id},
+        )
+
+    @staticmethod
+    def remove_graphs(dataset_id: str) -> None:
+        """
+        Удаляет графики из БД.
+        """
+        db['DatasetGraphsCollection'].delete_one(
+            {'_id': dataset_id}
         )
 
     @staticmethod

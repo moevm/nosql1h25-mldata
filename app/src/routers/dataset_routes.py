@@ -7,6 +7,7 @@ import pandas as pd
 from flask import Blueprint, Response, request, send_from_directory, current_app, render_template
 from flask_login import login_required
 from werkzeug.exceptions import BadRequest
+from typing import Optional
 
 from src.controllers.dataset_controller import DatasetController
 from src.models import Dataset
@@ -84,6 +85,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
 
     try:
         dataset_info: Dataset = DatasetController.get_dataset(dataset_id)
+        dataset_graphs: Optional[list[dict]] = DatasetController.get_plots(dataset_id)
         filepath: str = f'{dataset_info.dataset_path}/{dataset_info.dataset_id}.csv'
 
         max_cols_num: int = int(os.getenv('MAX_COLS_NUM'))
@@ -100,12 +102,17 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
         if dataset_info.dataset_rows > max_rows_num:
             rows.append(['...'] * min(dataset_info.dataset_columns, max_cols_num))
 
+        dataset_graphs = [] if dataset_graphs is None else dataset_graphs
+        for d in dataset_graphs:
+            d['data'] = d['data'].decode('utf-8')
+
         return render_template(
             'one_dataset.html',
             dataset_info=dataset_info,
             headers=headers,
             rows=rows,
             max_cols_num=max_cols_num,
+            plots=dataset_graphs,
         )
 
     except FileNotFoundError:
