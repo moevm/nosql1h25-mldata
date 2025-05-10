@@ -150,13 +150,11 @@ class DatasetRepository:
         """
         Добавляет датасет в БД.
         """
-        try:
-            inserted: InsertOneResult = db.DatasetInfoCollection.insert_one(dataset.to_dict())
-            return str(inserted.inserted_id)
-        except pymongo.errors.DuplicateKeyError as e:
-            raise
-        except Exception as e:
-            raise
+        # потенциально может случиться такое, что uuid нагенерит два одинаковых id
+        # и тут из-за этого все упадет
+        # надо обернуть в try-catch и в блоке catch перегенерить id
+        inserted: InsertOneResult = db['DatasetInfoCollection'].insert_one(dataset.to_dict())
+        return inserted.inserted_id
 
     @staticmethod
     def edit_dataset(dataset: Dataset) -> None:
@@ -196,20 +194,19 @@ class DatasetRepository:
         )
 
     @staticmethod
-    def _create_from_to_query(
-        from_val: Optional[Any], 
-        to_val: Optional[Any], 
-        is_date: bool = False
-    ) -> dict:
-        query_part: dict = {}
-        
-        if from_val is not None:
-            query_part['$gte'] = from_val
-        
-        if to_val is not None:
-            if is_date and isinstance(to_val, datetime):
-                query_part['$lt'] = to_val + timedelta(days=1)
+    def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:
+        INT64_MAX: int = 9223372036854775807
+        DATETIME_MAX: datetime = datetime.today() + timedelta(days=1)
+
+        query: dict = {}
+        if from_ is not None:
+            if isinstance(from_, datetime):
+                query['$gte'] = min(from_, DATETIME_MAX)
             else:
-                query_part['$lte'] = to_val
-                
-        return query_part
+                query['$gte'] = min(from_, INT64_MAX)
+        if to_ is not None:
+            if isinstance(to_, datetime):
+                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
+            else:
+                query['$lte'] = min(to_, INT64_MAX)
+        return query
