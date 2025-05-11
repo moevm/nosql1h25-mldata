@@ -49,12 +49,10 @@ class DatasetService:
             user = UserRepository.find_by_id(current_user.id)
             if user:
                 update_payload = {
-                    'createdDatasetsCount': user.createdDatasetsCount + 1,
-                    'lastAccountModificationDate': datetime.now(timezone.utc)
+                    'createdDatasetsCount': user.createdDatasetsCount + 1
                 }
                 UserRepository.update_user_fields(user.id, update_payload)
                 current_user.createdDatasetsCount = user.createdDatasetsCount + 1
-                current_user.lastAccountModificationDate = update_payload['lastAccountModificationDate']
 
         return inserted_id
 
@@ -63,7 +61,6 @@ class DatasetService:
         """
         Создает объект Dataset на основе `form_values`.
         Обращается к методу репозитория для изменения датасета в БД.
-        Обновляет дату последнего изменения аккаунта пользователя.
         """
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
 
@@ -80,13 +77,6 @@ class DatasetService:
 
         DatasetRepository.edit_dataset(dataset)
 
-        if current_user and current_user.is_authenticated:
-            update_payload = {
-                'lastAccountModificationDate': datetime.now(timezone.utc)
-            }
-            UserRepository.update_user_fields(current_user.id, update_payload)
-            current_user.lastAccountModificationDate = update_payload['lastAccountModificationDate']
-
     @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
         return DatasetRepository.get_dataset(dataset_id)
@@ -97,7 +87,37 @@ class DatasetService:
 
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
-        return DatasetRepository.remove_dataset(dataset_id)
+        """
+        Удаляет датасет и обновляет статистику пользователя.
+        """
+        dataset_to_remove: Optional[Dataset] = DatasetRepository.get_dataset(dataset_id)
+
+        if not dataset_to_remove:
+            DatasetRepository.remove_dataset(dataset_id)
+            return
+
+        author_username: str = dataset_to_remove.dataset_author
+        DatasetRepository.remove_dataset(dataset_id)
+        author_user = UserRepository.find_by_username(author_username)
+
+        if author_user:
+            new_created_datasets_count = author_user.createdDatasetsCount - 1
+            if new_created_datasets_count < 0:
+                new_created_datasets_count = 0
+
+            update_payload = {
+                'createdDatasetsCount': new_created_datasets_count
+            }
+            UserRepository.update_user_fields(author_user.id, update_payload)
+
+            # If the current logged-in user is the author of the removed dataset,
+            # update their in-memory (session) object attributes as well.
+            if current_user and current_user.is_authenticated and hasattr(current_user, 'id') and current_user.id == author_user.id:
+                if hasattr(current_user, 'createdDatasetsCount'):
+                    current_user.createdDatasetsCount = new_created_datasets_count
+        else:
+            # user not found?
+            pass
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:
