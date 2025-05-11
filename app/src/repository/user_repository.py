@@ -72,28 +72,12 @@ class UserRepository:
             print("UserRepository: Database connection not available.")
             return None
         try:
-            user_data = db.User.find_one({"username": username})
+            user_data = db.UserCollection.find_one({"username": username})
+
             if user_data:
                 return User(user_data)
         except Exception as e:
             print(f"UserRepository: Error finding user by username '{username}': {e}")
-        return None
-
-    @staticmethod
-    def find_by_login(user_login: str) -> User | None:
-        """
-        Ищет пользователя по логину.
-        Возвращает объект User или None, если пользователь не найден или DB недоступна.
-        """
-        if db is None:
-            print("UserRepository: Database connection not available.")
-            return None
-        try:
-            user_data = db.User.find_one({"login": user_login})
-            if user_data:
-                return User(user_data)
-        except Exception as e:
-            print(f"UserRepository: Error finding user by login '{user_login}': {e}")
         return None
 
     @staticmethod
@@ -109,7 +93,7 @@ class UserRepository:
             return True 
 
         try:
-            result = db.User.update_one({"_id": user_id}, {"$set": fields_to_update})
+            result = db.UserCollection.update_one({"_id": user_id}, {"$set": fields_to_update})
             return result.modified_count > 0 or (result.matched_count > 0 and not fields_to_update)
         except Exception as e:
             print(f"UserRepository: Error updating user fields for id '{user_id}': {e}")

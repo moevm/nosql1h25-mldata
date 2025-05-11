@@ -10,15 +10,13 @@ import tempfile
 import zipfile
 from datetime import datetime, timedelta
 
-from bson import ObjectId
-from flask import current_app, g, logging
 from glob import glob
 from io import BytesIO
-from typing import Any, List
-from typing import Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import pymongo
-from flask import current_app, g
+from bson import ObjectId
+from flask import current_app, g, logging
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.datastructures import FileStorage
