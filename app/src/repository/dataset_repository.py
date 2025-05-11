@@ -4,17 +4,24 @@
 """
 import os
 import re
-
-import pymongo
-from typing import Optional
-
+import shutil
+import subprocess
+import tempfile
+import zipfile
 from datetime import datetime, timedelta
 
-from typing import Optional, List, Any
 from bson import ObjectId
 from flask import current_app, g, logging
+from glob import glob
+from io import BytesIO
+from typing import Any, List
+from typing import Optional, Tuple
+
+import pymongo
+from flask import current_app, g
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
+from werkzeug.datastructures import FileStorage
 from werkzeug.local import LocalProxy
 
 from src.models.Dataset import Dataset
@@ -101,19 +108,22 @@ class DatasetRepository:
             query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
 
         if filters.column_size_from is not None or filters.column_size_to is not None:
-            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from,
+                                                                           filters.column_size_to)
 
         if filters.creation_date_from is not None or filters.creation_date_to is not None:
-            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from,
+                                                                            filters.creation_date_to)
 
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
-            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from,
+                                                                                filters.modify_date_to)
 
-        sort_query: list = []
+        cursor = db['DatasetInfoCollection'].find(query)
+
         if filters.sort is not None:
-            sort_query.append((filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1))
-
-        cursor = db['DatasetInfoCollection'].find(query).sort(sort_query)
+            sort_query: list = [(filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1)]
+            cursor.sort(sort_query)
 
         briefs: list = []
         for doc in cursor:
@@ -176,6 +186,97 @@ class DatasetRepository:
         db['DatasetInfoCollection'].delete_one(
             {'_id': dataset_id},
         )
+
+    @staticmethod
+    def export_datasets_archive() -> Tuple[BytesIO, str]:
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # Создаем временную структуру директорий
+            db_dump_dir = os.path.join(temp_dir, "mongodb_dump")
+            csv_dir = os.path.join(temp_dir, "datasets")
+            datasets_dir = "/app/datasets"
+
+            os.makedirs(db_dump_dir, exist_ok=True)
+            os.makedirs(csv_dir, exist_ok=True)
+
+            # 1. Делаем mongodump
+            mongodump_cmd = [
+                "mongodump",
+                "--uri", uri,
+                "--out", db_dump_dir
+            ]
+            subprocess.run(mongodump_cmd, check=True)
+
+            # 2. Конвертируем BSON → JSON через bsondump
+            bson_files = glob(os.path.join(db_dump_dir, db_name, "*.bson"))
+            for bson_file in bson_files:
+                json_file = bson_file.replace(".bson", ".json")
+                subprocess.run(["bsondump", "--pretty", "--outFile", json_file, bson_file], check=True)
+
+            # 3. Копируем CSV файлы в отдельную директорию
+            if os.path.exists(datasets_dir):
+                for csv_file in glob(os.path.join(datasets_dir, "*.csv")):
+                    shutil.copy2(
+                        csv_file,
+                        os.path.join(csv_dir, os.path.basename(csv_file))
+                    )
+
+            # 4. Создаем ZIP-архив с правильной структурой
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, dirs, files in os.walk(temp_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        # Сохраняем файлы с относительными путями внутри архива
+                        arcname = os.path.relpath(file_path, temp_dir)
+                        zipf.write(file_path, arcname)
+
+            zip_buffer.seek(0)
+            return zip_buffer, f'dump_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
+
+        finally:
+            # Очищаем временные файлы
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    @staticmethod
+    def import_datasets_archive(backup: FileStorage) -> None:
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # Сохраняем архив
+            backup_path = os.path.join(temp_dir, backup.filename)
+            backup.save(backup_path)
+
+            # Распаковываем
+            with zipfile.ZipFile(backup_path, 'r') as zip_ref:
+                zip_ref.extractall(temp_dir)
+
+            db_dump_dir = os.path.join(temp_dir, "mongodb_dump", db_name)
+            csv_dir = os.path.join(temp_dir, "datasets")
+            datasets_dir = "/app/datasets"
+
+            # Удаляем старые CSV
+            for item in os.listdir(datasets_dir):
+                os.remove(os.path.join(datasets_dir, item))
+
+            # Копируем новые
+            if os.path.exists(csv_dir):
+                for item in os.listdir(csv_dir):
+                    shutil.copy2(os.path.join(csv_dir, item), os.path.join(datasets_dir, item))
+
+            # Восстановление MongoDB
+            cmd = [
+                'mongorestore',
+                '--uri', uri,
+                '--drop',
+                db_dump_dir
+            ]
+            subprocess.run(cmd, check=True)
+
+        finally:
+            # Очищаем временные файлы
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     @staticmethod
     def _create_from_to_query(from_: Optional[int | float | datetime], to_: Optional[int | float | datetime]) -> dict:

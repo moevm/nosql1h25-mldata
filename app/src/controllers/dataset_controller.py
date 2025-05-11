@@ -2,15 +2,16 @@
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
 import os
-from pathlib import PosixPath, Path
+from io import BytesIO
+from pathlib import PosixPath
 
-from flask import render_template, Request, Response, current_app, make_response, jsonify, flash, redirect, url_for
+from flask import render_template, Request, Response, current_app, make_response, jsonify, flash, redirect, url_for, send_file
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
-from src.models.FilterValues import FilterValues
 from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
+from src.models.FilterValues import FilterValues
 from src.services.dataset_service import DatasetService
 
 
@@ -151,6 +152,40 @@ class DatasetController:
         """
         dataset: Dataset = DatasetService.get_dataset(dataset_id)
         return dataset
+
+    @staticmethod
+    def render_instruments() -> str:
+        return render_template('temp.html')
+
+    @staticmethod
+    def export_datasets() -> Response:
+        """
+        Обращается к методу сервиса для получения архива, содержащего дамп БД.
+        """
+        zip_file_bytes: BytesIO
+        file_name: str
+        zip_file_bytes, file_name = DatasetService.export_datasets_archive()
+
+        response = make_response(send_file(
+            zip_file_bytes,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=file_name
+        ))
+        return response
+
+    @staticmethod
+    def import_datasets(request: Request) -> Response:
+        """
+        Обращается к методу сервиса для загрузки архива, содержащего дамп БД.
+        """
+        backup: FileStorage = request.files['backup']
+        DatasetService.import_datasets_archive(backup)
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/'
+        return response
+
 
     @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:

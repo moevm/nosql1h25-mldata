@@ -3,7 +3,7 @@
 """
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Tuple
 
 from flask_login import current_user
 
@@ -11,7 +11,11 @@ from src.models.Dataset import Dataset
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.repository.dataset_repository import DatasetRepository
+
 from src.repository.user_repository import UserRepository
+from werkzeug.datastructures import FileStorage
+
+from io import BytesIO
 
 
 class DatasetService:
@@ -127,6 +131,14 @@ class DatasetService:
         else:
             # user not found?
             pass
+
+    @staticmethod
+    def export_datasets_archive() -> Tuple[BytesIO, str]:
+        return DatasetRepository.export_datasets_archive()
+
+    @staticmethod
+    def import_datasets_archive(backup: FileStorage) -> None:
+        return DatasetRepository.import_datasets_archive(backup)
 
     @staticmethod
     def extract_filter_values(request) -> FilterValues:
