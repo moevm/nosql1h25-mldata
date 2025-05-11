@@ -113,6 +113,9 @@ def profile():
             if len(new_password) < 6:
                 flash('Новый пароль должен содержать не менее 6 символов.', 'danger')
                 return render_template('auth/profile.html', current_user=current_user)
+            if ' ' in new_password:
+                flash('Пароль не может содержать пробелы.', 'danger')
+                return render_template('auth/profile.html', current_user=current_user)
             if new_password != confirm_new_password:
                 flash('Новые пароли не совпадают.', 'danger')
                 return render_template('auth/profile.html', current_user=current_user)
