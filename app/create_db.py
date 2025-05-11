@@ -1,16 +1,14 @@
 import os
-
-import bson
+import shutil
 import pymongo
 import datetime
-import shutil
 
-import matplotlib.pyplot as plt
-
-from bson import ObjectId
 from pathlib import Path
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
+
+from run import app
+from src.services.dataset_service import DatasetService
 
 
 env_path = Path(__file__).resolve().parent.parent / '.env'
@@ -30,11 +28,15 @@ db = client[db_name]
 
 
 def add_examples() -> None:
+    dataset_id1: str = "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8"
+    dataset_id2: str = "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8"
+    dataset_id3: str = "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"
+
     if not db.DatasetInfoCollection.find().to_list():
         shutil.copytree("/app/example-datasets", "/app/datasets", dirs_exist_ok=True)
         db.DatasetInfoCollection.insert_many([
             {
-                "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+                "_id": dataset_id1,
                 "name": "Example dataset 1",
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
@@ -48,7 +50,7 @@ def add_examples() -> None:
                 "lastModifiedBy": "Jane Sales"
             },
             {
-                "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+                "_id": dataset_id2,
                 "name": "Example dataset 2",
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2021, 7, 15, 9, 30, 45),
@@ -62,7 +64,7 @@ def add_examples() -> None:
                 "lastModifiedBy": "Jane Sales"
             },
             {
-                "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+                "_id": dataset_id3,
                 "name": "Another dataset 3",
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2022, 7, 15, 9, 30, 45),
@@ -80,7 +82,7 @@ def add_examples() -> None:
     if not db.DatasetActivityCollection.find().to_list():
         db.DatasetActivityCollection.insert_many([
             {
-                "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+                "_id": dataset_id1,
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -205,7 +207,7 @@ def add_examples() -> None:
                 }
             },
             {
-                "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+                "_id": dataset_id2,
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -218,7 +220,7 @@ def add_examples() -> None:
                 }
             },
             {
-                "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+                "_id": dataset_id3,
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -233,40 +235,9 @@ def add_examples() -> None:
         ])
 
     if not db.DatasetGraphsCollection.find().to_list():
-        plt.plot([1, 2, 3, 4])
-        plt.ylabel('some numbers')
-        plt.savefig('test.svg')
-
-        with open('test.svg', 'rb') as f:
-            db.DatasetGraphsCollection.insert_many([
-                {
-                    "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
-                    "graphs": [
-                        {
-                            "name": "Январь",
-                            "data": bson.Binary(f.read())
-                        }
-                    ]
-                },
-                {
-                    "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
-                    "graphs": [
-                        {
-                            "name": "Январь",
-                            "data": bson.Binary(f.read())
-                        }
-                    ]
-                },
-                {
-                    "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
-                    "graphs": [
-                        {
-                            "name": "Январь",
-                            "data": bson.Binary(f.read())
-                        }
-                    ]
-                }
-            ])
+        with app.app_context():
+            for dataset_id in (dataset_id1, dataset_id2, dataset_id3):
+                DatasetService.save_plots(dataset_id)
 
     if not db.UserCollection.find_one({"_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"}):
         john_pass_hash = generate_password_hash("pa$$word123")
