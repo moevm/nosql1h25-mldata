@@ -23,6 +23,7 @@ class DatasetController:
         old_dataset: Dataset = DatasetService.get_dataset(dataset_id)
 
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
+                                                    old_dataset.dataset_author_login,
                                                     filepath)
         
         if not form_values.dataset_data:

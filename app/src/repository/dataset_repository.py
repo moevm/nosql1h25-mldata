@@ -163,8 +163,8 @@ class DatasetRepository:
             raise Exception(f'Element with {dataset_id} not found')
 
         info: Dataset = Dataset(dataset_id, dataset['name'], dataset['description'], dataset['creationDate'],
-                                dataset['author'], dataset['rowCount'], dataset['columnCount'], dataset['size'],
-                                dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
+                                dataset['author'], dataset['author_login'], dataset['rowCount'], dataset['columnCount'], 
+                                dataset['size'], dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
                                 dataset['lastModifiedBy'])
         return info
 

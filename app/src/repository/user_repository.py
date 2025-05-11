@@ -65,7 +65,7 @@ class UserRepository:
     @staticmethod
     def find_by_username(username: str) -> User | None:
         """
-        Ищет пользователя по имени пользователя (username/nickname).
+        Ищет пользователя по имени пользователя.
         Возвращает объект User или None, если пользователь не найден или DB недоступна.
         """
         if db is None:
@@ -77,6 +77,23 @@ class UserRepository:
                 return User(user_data)
         except Exception as e:
             print(f"UserRepository: Error finding user by username '{username}': {e}")
+        return None
+
+    @staticmethod
+    def find_by_login(user_login: str) -> User | None:
+        """
+        Ищет пользователя по логину.
+        Возвращает объект User или None, если пользователь не найден или DB недоступна.
+        """
+        if db is None:
+            print("UserRepository: Database connection not available.")
+            return None
+        try:
+            user_data = db.User.find_one({"login": user_login})
+            if user_data:
+                return User(user_data)
+        except Exception as e:
+            print(f"UserRepository: Error finding user by login '{user_login}': {e}")
         return None
 
     @staticmethod

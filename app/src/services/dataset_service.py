@@ -41,12 +41,19 @@ class DatasetService:
         Обновляет статистику пользователя.
         """
         dataset_id: str = str(uuid.uuid4())
-        dataset_csv: Dataset = Dataset.from_form_values(form_values, dataset_id, author_username, filepath)
+
+        # add relation `author login` to created dataset
+        author: Optional[User] = UserRepository.find_by_username(author_username)
+        author_login = ""
+        if author:
+            author_login = author.login
+
+        dataset_csv: Dataset = Dataset.from_form_values(form_values, dataset_id, author_username, author_login, filepath)
 
         inserted_id = DatasetRepository.add_dataset(dataset_csv)
-
         if current_user and current_user.is_authenticated:
             user = UserRepository.find_by_id(current_user.id)
+
             if user:
                 update_payload = {
                     'createdDatasetsCount': user.createdDatasetsCount + 1
@@ -65,6 +72,7 @@ class DatasetService:
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
 
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
+                                                    old_dataset.dataset_author_login,
                                                     filepath)
         if not form_values.dataset_data:
             dataset.dataset_columns = old_dataset.dataset_columns
@@ -96,9 +104,10 @@ class DatasetService:
             DatasetRepository.remove_dataset(dataset_id)
             return
 
-        author_username: str = dataset_to_remove.dataset_author
+        author_login: str = dataset_to_remove.dataset_author_login
+
         DatasetRepository.remove_dataset(dataset_id)
-        author_user = UserRepository.find_by_username(author_username)
+        author_user: Optional[User] = UserRepository.find_by_login(author_login)
 
         if author_user:
             new_created_datasets_count = author_user.createdDatasetsCount - 1
