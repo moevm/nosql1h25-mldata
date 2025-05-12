@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from urllib.parse import urlparse
 
 from src.repository.user_repository import UserRepository
+from src.services.user_service import UserService
 
 auth_bp: Blueprint = Blueprint('auth', __name__, template_folder='templates')
 
@@ -54,7 +55,6 @@ def login():
 
     return render_template('auth/login.html')
 
-
 @auth_bp.route('/logout')
 @login_required
 def logout():
@@ -93,3 +93,50 @@ def index():
         return redirect(url_for('datasets.get_datasets'))
     else:
         return redirect(url_for('auth.login'))
+
+@auth_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """
+    Отображает страницу профиля пользователя и обрабатывает обновление данных.
+    """
+    if request.method == 'POST':
+        new_username = request.form.get('username', '').strip()
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if not new_username:
+            flash('Имя пользователя (Никнейм) не может быть пустым.', 'danger')
+            return render_template('auth/profile.html', current_user=current_user)
+
+        if new_password:
+            if len(new_password) < 6:
+                flash('Новый пароль должен содержать не менее 6 символов.', 'danger')
+                return render_template('auth/profile.html', current_user=current_user)
+            if ' ' in new_password:
+                flash('Пароль не может содержать пробелы.', 'danger')
+                return render_template('auth/profile.html', current_user=current_user)
+            if new_password != confirm_new_password:
+                flash('Новые пароли не совпадают.', 'danger')
+                return render_template('auth/profile.html', current_user=current_user)
+        
+        # UserService handles uniqueness check for username
+        success, message = UserService.update_profile(
+            user_id=current_user.id,
+            new_username=new_username,
+            new_password=new_password if new_password else None
+        )
+
+        if success:
+            flash(message, 'success')
+            updated_user = UserRepository.find_by_id(current_user.id)
+            if updated_user:
+                current_user.username = updated_user.username
+                current_user.lastAccountModificationDate = updated_user.lastAccountModificationDate
+            return redirect(url_for('auth.profile')) 
+        else:
+            flash(message, 'danger')
+            return render_template('auth/profile.html', current_user=current_user)
+
+    # For GET request, just render the profile page
+    return render_template('auth/profile.html', current_user=current_user)

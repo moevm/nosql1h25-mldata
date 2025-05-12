@@ -9,13 +9,14 @@ import subprocess
 import tempfile
 import zipfile
 from datetime import datetime, timedelta
+
 from glob import glob
 from io import BytesIO
-from typing import Any
-from typing import Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import pymongo
-from flask import current_app, g
+from bson import ObjectId
+from flask import current_app, g, logging
 from flask_pymongo import PyMongo
 from pymongo.results import InsertOneResult
 from werkzeug.datastructures import FileStorage
@@ -170,8 +171,8 @@ class DatasetRepository:
             raise Exception(f'Element with {dataset_id} not found')
 
         info: Dataset = Dataset(dataset_id, dataset['name'], dataset['description'], dataset['creationDate'],
-                                dataset['author'], dataset['rowCount'], dataset['columnCount'], dataset['size'],
-                                dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
+                                dataset['author'], dataset['author_login'], dataset['rowCount'], dataset['columnCount'], 
+                                dataset['size'], dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
                                 dataset['lastModifiedBy'])
         return info
 

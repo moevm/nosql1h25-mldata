@@ -39,6 +39,7 @@ def add_examples() -> None:
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
                 "author": "John Sales",
+                "author_login": "john.sales@company.com",
                 "rowCount": 10,
                 "columnCount": 2,
                 "size": 0.05,
@@ -53,6 +54,7 @@ def add_examples() -> None:
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2021, 7, 15, 9, 30, 45),
                 "author": "John Sales",
+                "author_login": "john.sales@company.com",
                 "rowCount": 10,
                 "columnCount": 2,
                 "size": 0.05,
@@ -67,6 +69,7 @@ def add_examples() -> None:
                 "description": "This dataset is used for debugging",
                 "creationDate": datetime.datetime(2022, 7, 15, 9, 30, 45),
                 "author": "John Sales",
+                "author_login": "john.sales@company.com",
                 "rowCount": 10,
                 "columnCount": 2,
                 "size": 0.05,
@@ -276,7 +279,7 @@ def add_examples() -> None:
             "login": "john.sales@company.com",
             "password": john_pass_hash,
             "status": 1,
-            "createdDatasetsCount": 17,
+            "createdDatasetsCount": 3,
             "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33),
             "lastAccountModificationDate": datetime.datetime(2023, 10, 28, 14, 45, 21)
         })
@@ -292,8 +295,8 @@ def add_examples() -> None:
             "password": admin_pass_hash,
             "status": 0,
             "createdDatasetsCount": 0,
-            "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
         })
 
     # Regular User
@@ -306,8 +309,9 @@ def add_examples() -> None:
             "login": "vasily",
             "password": user_pass_hash,
             "status": 1,
-            "createdDatasetsCount": 1,
-            "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+            "createdDatasetsCount": 0,
+            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
         })
 
 
