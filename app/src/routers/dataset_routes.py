@@ -52,6 +52,7 @@ def add_dataset() -> str | Response | BadRequest:
 
 
 @bp.route('/datasets/delete/<dataset_id>', methods=['DELETE'])
+@login_required
 def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
     if request.method != 'DELETE':
         return BadRequest('Invalid method')

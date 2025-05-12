@@ -21,6 +21,7 @@ class Dataset:
             dataset_description: str,
             dataset_creation_date: datetime,
             dataset_author: str,
+            dataset_author_login: str,
             dataset_rows: int,
             dataset_columns: int,
             dataset_size: float,
@@ -34,6 +35,7 @@ class Dataset:
         self.dataset_description: str = dataset_description
         self.dataset_creation_date: datetime = dataset_creation_date
         self.dataset_author: str = dataset_author
+        self.dataset_author_login: str = dataset_author_login
         self.dataset_columns: int = dataset_columns
         self.dataset_rows: int = dataset_rows
         self.dataset_size: float = dataset_size
@@ -43,7 +45,7 @@ class Dataset:
         self.dataset_last_editor: str = dataset_last_editor
 
     @classmethod
-    def from_form_values(cls, form_values: DatasetFormValues, dataset_id: str, author: str, filepath: str):
+    def from_form_values(cls, form_values: DatasetFormValues, dataset_id: str, author: str, author_login: str, filepath: str):
         """
         Альтернативный конструктор для создания класса из `DatasetFormValues` и дополнительных аргументов
         """
@@ -65,7 +67,7 @@ class Dataset:
 
         return cls(dataset_id,
                    form_values.dataset_name, form_values.dataset_description,
-                   dataset_creation_date, author, dataset_rows,
+                   dataset_creation_date, author, author_login, dataset_rows,
                    dataset_columns, dataset_size, dataset_version,
                    dataset_last_update, dataset_path, author)
 
@@ -79,6 +81,7 @@ class Dataset:
             'description':       self.dataset_description,
             'creationDate':      self.dataset_creation_date,
             'author':            self.dataset_author,
+            'author_login':      self.dataset_author_login,
             'rowCount':          self.dataset_rows,
             'columnCount':       self.dataset_columns,
             'size':              self.dataset_size,
