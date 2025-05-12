@@ -279,7 +279,7 @@ def add_examples() -> None:
             "login": "john.sales@company.com",
             "password": john_pass_hash,
             "status": 1,
-            "createdDatasetsCount": 17,
+            "createdDatasetsCount": 3,
             "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33),
             "lastAccountModificationDate": datetime.datetime(2023, 10, 28, 14, 45, 21)
         })
