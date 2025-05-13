@@ -1,5 +1,9 @@
 $(document).ready(() => {
-    $('.ui.accordion').accordion();
+    $('.ui.accordion').accordion({
+        onOpen: function () {
+            this.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    });
 });
 
 const FLASK_ROOT_URL = "http://127.0.0.1:5000"
