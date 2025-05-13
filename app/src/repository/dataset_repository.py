@@ -8,7 +8,7 @@ import re
 import pymongo
 from typing import Optional
 
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 
 from typing import Any
 from bson import ObjectId
@@ -18,6 +18,7 @@ from pymongo.results import InsertOneResult
 from werkzeug.local import LocalProxy
 
 from src.models.Dataset import Dataset
+from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetBrief import DatasetBrief
 from src.models.FilterValues import FilterValues
 
@@ -167,6 +168,97 @@ class DatasetRepository:
                                 dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
                                 dataset['lastModifiedBy'])
         return info
+    
+    @staticmethod
+    def init_dataset_activity(dataset_id: str) -> None:
+        """
+        Создает активность для датасета в БД.
+        """
+        db['DatasetActivity'].insert_one({
+            '_id': dataset_id,
+            'statistics': {
+                str(date.today()): {
+                    'views': 0,
+                    'downloads': 0
+                }
+            }
+        })
+
+    @staticmethod
+    def incr_dataset_views(dataset_id: str) -> None:
+        """
+        Увеличивает число просмотров на странице.
+        """
+        collection = db['DatasetActivity']
+        collection.update_one(
+            {"_id": dataset_id},
+            {"$inc": {f"statistics.{str(date.today())}.views": 1}}
+        )
+
+    @staticmethod
+    def incr_dataset_downloads(dataset_id: str) -> None:
+        """
+        Увеличивает число загрузок на странице.
+        """
+        collection = db['DatasetActivity']
+        collection.update_one(
+            {"_id": dataset_id},
+            {"$inc": {f"statistics.{str(date.today())}.downloads": 1}}
+        )
+    
+    @staticmethod
+    def get_dataset_activity(dataset_id: str) -> Optional[DatasetActivity]:
+        """
+        Возвращает объект Activity для датасета с индексом dataset_id.
+        Если датасета с индексом dataset_id нет, то возвращает None.
+        """
+        collection = db['DatasetActivity']
+
+        activity = collection.find_one({'_id': dataset_id})
+        if activity is None:
+            raise Exception(f'Element with {dataset_id} not found')
+
+        info: DatasetActivity = DatasetActivity(dataset_id, activity)
+        return info
+    
+    @staticmethod
+    def reset_day() -> None:
+        """
+        Создает новый день.
+        """
+        collection = db['DatasetActivity']
+        docs = collection.find({"statistics": {"$exists": True}})
+
+        # Prepare bulk operations
+        bulk_operations = []
+
+        for doc in docs:
+            if not doc.get("statistics"):
+                continue
+            
+            # Find the latest date in statistics
+            dates = list(doc["statistics"].keys())
+            if not dates:
+                continue
+                
+            latest_date = max(dates)
+            latest_stats = doc["statistics"][latest_date]
+            
+            # Calculate next day (YYYY-MM-DD format)
+            next_day = str(date.today())
+            
+            # Add update operation to bulk
+            bulk_operations.append(
+                pymongo.UpdateOne(
+                    {"_id": doc["_id"]},
+                    {"$set": {f"statistics.{next_day}": latest_stats}}
+                )
+            )
+
+        # Execute all operations in bulk
+        if bulk_operations:
+            collection.bulk_write(bulk_operations)
+            
 
     @staticmethod
     def remove_dataset(dataset_id: str) -> None:
