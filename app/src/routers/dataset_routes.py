@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 
 from src.controllers.dataset_controller import DatasetController
 from src.models import Dataset
+from src.models.DatasetActivity import DatasetActivity
 from src.util.decorators import admin_required
 
 bp: Blueprint = Blueprint('datasets', __name__)
@@ -100,9 +101,14 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
         if dataset_info.dataset_rows > max_rows_num:
             rows.append(['...'] * min(dataset_info.dataset_columns, max_cols_num))
 
+        DatasetController.incr_dataset_views(dataset_id)
+        dataset_activity: DatasetActivity = DatasetController.get_dataset_activity(dataset_id)
+        
+        
         return render_template(
             'one_dataset.html',
             dataset_info=dataset_info,
+            dataset_activity=dataset_activity,
             headers=headers,
             rows=rows,
             max_cols_num=max_cols_num,
@@ -111,7 +117,8 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
     except FileNotFoundError:
         return "CSV file not found on server", 404
 
-    except Exception:
+    except Exception as e:
+        raise e
         return "Something went wrong", 500
 
 
@@ -127,6 +134,9 @@ def download_dataset(dataset_id: str):
         return BadRequest('Invalid method')
 
     dr = os.getcwd() + current_app.config['UPLOAD_FOLDER'][1:]  # slice: ./dir_name => dir_name
+    
+    DatasetController.incr_dataset_downloads(dataset_id)
+    
     return send_from_directory(
        directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
