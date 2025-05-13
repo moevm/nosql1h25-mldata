@@ -202,7 +202,7 @@ class DatasetRepository:
         """
         Создает активность для датасета в БД.
         """
-        db['DatasetActivity'].insert_one({
+        db['DatasetActivityCollection'].insert_one({
             '_id': dataset_id,
             'statistics': {
                 str(date.today()): {
@@ -217,7 +217,7 @@ class DatasetRepository:
         """
         Увеличивает число просмотров на странице.
         """
-        collection = db['DatasetActivity']
+        collection = db['DatasetActivityCollection']
         collection.update_one(
             {"_id": dataset_id},
             {"$inc": {f"statistics.{str(date.today())}.views": 1}}
@@ -228,7 +228,7 @@ class DatasetRepository:
         """
         Увеличивает число загрузок на странице.
         """
-        collection = db['DatasetActivity']
+        collection = db['DatasetActivityCollection']
         collection.update_one(
             {"_id": dataset_id},
             {"$inc": {f"statistics.{str(date.today())}.downloads": 1}}
@@ -240,7 +240,7 @@ class DatasetRepository:
         Возвращает объект Activity для датасета с индексом dataset_id.
         Если датасета с индексом dataset_id нет, то возвращает None.
         """
-        collection = db['DatasetActivity']
+        collection = db['DatasetActivityCollection']
 
         activity = collection.find_one({'_id': dataset_id})
         if activity is None:
@@ -254,7 +254,7 @@ class DatasetRepository:
         """
         Создает новый день.
         """
-        collection = db['DatasetActivity']
+        collection = db['DatasetActivityCollection']
         docs = collection.find({"statistics": {"$exists": True}})
 
         # Prepare bulk operations
