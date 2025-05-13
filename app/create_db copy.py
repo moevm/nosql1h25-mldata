@@ -1,14 +1,15 @@
 import os
-import shutil
+
+import bson
 import pymongo
 import datetime
 
+import matplotlib.pyplot as plt
+
+from bson import ObjectId
 from pathlib import Path
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
-
-from run import app
-from src.services.dataset_service import DatasetService
 
 
 env_path = Path(__file__).resolve().parent.parent / '.env'
@@ -28,64 +29,55 @@ db = client[db_name]
 
 
 def add_examples() -> None:
-    dataset_id1: str = "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8"
-    dataset_id2: str = "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8"
-    dataset_id3: str = "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"
+    # db.DatasetInfoCollection.insert_many([
+    #     {
+    #         "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+    #         "name": "Example dataset 1",
+    #         "description": "This dataset is used for debugging",
+    #         "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
+    #         "author": "John Sales",
+    #         "rowCount": 10,
+    #         "columnCount": 2,
+    #         "size": 0.05,
+    #         "path": "./datasets",
+    #         "lastVersionNumber": 1,
+    #         "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
+    #         "lastModifiedBy": "Jane Sales"
+    #     },
+    #     {
+    #         "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+    #         "name": "Example dataset 2",
+    #         "description": "This dataset is used for debugging",
+    #         "creationDate": datetime.datetime(2021, 7, 15, 9, 30, 45),
+    #         "author": "John Sales",
+    #         "rowCount": 10,
+    #         "columnCount": 2,
+    #         "size": 0.05,
+    #         "path": "./datasets",
+    #         "lastVersionNumber": 1,
+    #         "lastModifiedDate": datetime.datetime(2021, 9, 20, 14, 15, 22),
+    #         "lastModifiedBy": "Jane Sales"
+    #     },
+    #     {
+    #         "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+    #         "name": "Another dataset 3",
+    #         "description": "This dataset is used for debugging",
+    #         "creationDate": datetime.datetime(2022, 7, 15, 9, 30, 45),
+    #         "author": "John Sales",
+    #         "rowCount": 10,
+    #         "columnCount": 2,
+    #         "size": 0.05,
+    #         "path": "./datasets",
+    #         "lastVersionNumber": 1,
+    #         "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
+    #         "lastModifiedBy": "Jane Sales"
+    #     }
+    # ])
 
-    if not db.DatasetInfoCollection.find().to_list():
-        shutil.copytree("/app/example-datasets", "/app/datasets", dirs_exist_ok=True)
-        db.DatasetInfoCollection.insert_many([
+    if not db.DatasetActivity.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
+        db.DatasetActivity.insert_many([
             {
-                "_id": dataset_id1,
-                "name": "Example dataset 1",
-                "description": "This dataset is used for debugging",
-                "creationDate": datetime.datetime(2023, 7, 15, 9, 30, 45),
-                "author": "John Sales",
-                "author_login": "john.sales@company.com",
-                "rowCount": 10,
-                "columnCount": 2,
-                "size": 0.05,
-                "path": "./datasets",
-                "lastVersionNumber": 1,
-                "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
-                "lastModifiedBy": "Jane Sales"
-            },
-            {
-                "_id": dataset_id2,
-                "name": "Example dataset 2",
-                "description": "This dataset is used for debugging",
-                "creationDate": datetime.datetime(2021, 7, 15, 9, 30, 45),
-                "author": "John Sales",
-                "author_login": "john.sales@company.com",
-                "rowCount": 10,
-                "columnCount": 2,
-                "size": 0.05,
-                "path": "./datasets",
-                "lastVersionNumber": 1,
-                "lastModifiedDate": datetime.datetime(2021, 9, 20, 14, 15, 22),
-                "lastModifiedBy": "Jane Sales"
-            },
-            {
-                "_id": dataset_id3,
-                "name": "Another dataset 3",
-                "description": "This dataset is used for debugging",
-                "creationDate": datetime.datetime(2022, 7, 15, 9, 30, 45),
-                "author": "John Sales",
-                "author_login": "john.sales@company.com",
-                "rowCount": 10,
-                "columnCount": 2,
-                "size": 0.05,
-                "path": "./datasets",
-                "lastVersionNumber": 1,
-                "lastModifiedDate": datetime.datetime(2023, 9, 20, 14, 15, 22),
-                "lastModifiedBy": "Jane Sales"
-            }
-        ])
-
-    if not db.DatasetActivityCollection.find().to_list():
-        db.DatasetActivityCollection.insert_many([
-            {
-                "_id": dataset_id1,
+                "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -210,7 +202,7 @@ def add_examples() -> None:
                 }
             },
             {
-                "_id": dataset_id2,
+                "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -223,7 +215,7 @@ def add_examples() -> None:
                 }
             },
             {
-                "_id": dataset_id3,
+                "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
                 "statistics": {
                     "2023-10-01": {
                         "views": 42,
@@ -237,54 +229,84 @@ def add_examples() -> None:
             },
         ])
 
-    if not db.DatasetGraphsCollection.find().to_list():
-        with app.app_context():
-            for dataset_id in (dataset_id1, dataset_id2, dataset_id3):
-                DatasetService.save_plots(dataset_id)
+    if not db.DatasetGraphs.find({"_id": {"$in": ["b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8", "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8", "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr"]}}).to_list():
 
-    if not db.UserCollection.find_one({"_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"}):
+        plt.plot([1, 2, 3, 4])
+        plt.ylabel('some numbers')
+        plt.savefig('test.svg')
+
+        with open('test.svg', 'rb') as f:
+            db.DatasetGraphs.insert_many([
+                {
+                    "_id": "b2c3d4e5-0000-0000-h1i2-j3k4l5m6n7o8",
+                    "graphs": [
+                        {
+                            "name": "Январь",
+                            "data": bson.Binary(f.read())
+                        }
+                    ]
+                },
+                {
+                    "_id": "b2c3d4e5-f6g7-8910-1111-j3k4l5m6n7o8",
+                    "graphs": [
+                        {
+                            "name": "Январь",
+                            "data": bson.Binary(f.read())
+                        }
+                    ]
+                },
+                {
+                    "_id": "b2c774e5-f6g7-8910-h1i2-j3ktttm6nqrr",
+                    "graphs": [
+                        {
+                            "name": "Январь",
+                            "data": bson.Binary(f.read())
+                        }
+                    ]
+                }
+            ])
+
+    if not db.User.find_one({"_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1"}):
         john_pass_hash = generate_password_hash("pa$$word123")
-        db.UserCollection.insert_one({
+        db.User.insert_one({
             "_id": "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p1",
             "username": "John Sales",
             "login": "john.sales@company.com",
             "password": john_pass_hash,
             "status": 1,
-            "createdDatasetsCount": 3,
+            "createdDatasetsCount": 17,
             "accountCreationDate": datetime.datetime(2022, 3, 15, 8, 12, 33),
             "lastAccountModificationDate": datetime.datetime(2023, 10, 28, 14, 45, 21)
         })
 
     # Admin 
     admin_id = "c3d4e5f6-g7h8-9123-i4j5-k6l7m8n9o0p0"
-    if not db.UserCollection.find_one({"_id": admin_id}):
-        admin_pass_hash = generate_password_hash("0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd")
-        db.UserCollection.insert_one({
-            "_id": admin_id,
-            "username": "Administrator",
-            "login": "administrator",
-            "password": admin_pass_hash,
-            "status": 0,
-            "createdDatasetsCount": 0,
-            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
-            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-        })
+    admin_pass_hash = generate_password_hash("0dhABEwrwWvtZJQw3aOA1IliEVbiQvWd")
+    db.User.insert_one({
+        "_id": admin_id,
+        "username": "Administrator",
+        "login": "administrator",
+        "password": admin_pass_hash,
+        "status": 0,
+        "createdDatasetsCount": 0,
+        "accountCreationDate": datetime.datetime.now(datetime.timezone.utc),
+        "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+    })
 
     # Regular User
     user_id = "09365d4b-af81-42ae-89b8-54f232c0c8fb"
-    if not db.UserCollection.find_one({"_id": user_id}):
-        user_pass_hash = generate_password_hash("AuQ5UIkdEiQ0tpH8")
-        db.UserCollection.insert_one({
-            "_id": user_id,
-            "username": "Vasily Pupkin",
-            "login": "vasily",
-            "password": user_pass_hash,
-            "status": 1,
-            "createdDatasetsCount": 0,
-            "accountCreationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
-            "lastAccountModificationDate": datetime.datetime(2025, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-        })
+    user_pass_hash = generate_password_hash("AuQ5UIkdEiQ0tpH8")
+    db.User.insert_one({
+        "_id": user_id,
+        "username": "Vasily Pupkin",
+        "login": "vasily",
+        "password": user_pass_hash,
+        "status": 1,
+        "createdDatasetsCount": 1,
+        "lastAccountModificationDate": datetime.datetime.now(datetime.timezone.utc)
+    })
 
 
 if __name__ == '__main__':
+    client.drop_database(db_name)
     add_examples()

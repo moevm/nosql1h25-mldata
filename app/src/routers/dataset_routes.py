@@ -7,6 +7,7 @@ import pandas as pd
 from flask import Blueprint, Response, request, send_from_directory, current_app, render_template
 from flask_login import login_required
 from werkzeug.exceptions import BadRequest
+from typing import Optional
 
 from src.controllers.dataset_controller import DatasetController
 from src.models import Dataset
@@ -52,6 +53,7 @@ def add_dataset() -> str | Response | BadRequest:
 
 
 @bp.route('/datasets/delete/<dataset_id>', methods=['DELETE'])
+@login_required
 def delete_dataset(dataset_id: str) -> str | Response | BadRequest:
     if request.method != 'DELETE':
         return BadRequest('Invalid method')
@@ -85,6 +87,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
 
     try:
         dataset_info: Dataset = DatasetController.get_dataset(dataset_id)
+        dataset_graphs: Optional[list[dict]] = DatasetController.get_plots(dataset_id)
         filepath: str = f'{dataset_info.dataset_path}/{dataset_info.dataset_id}.csv'
 
         max_cols_num: int = int(os.getenv('MAX_COLS_NUM'))
@@ -105,6 +108,10 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
         dataset_activity: DatasetActivity = DatasetController.get_dataset_activity(dataset_id)
         
         
+        dataset_graphs = [] if dataset_graphs is None else dataset_graphs
+        for d in dataset_graphs:
+            d['data'] = d['data'].decode('utf-8')
+
         return render_template(
             'one_dataset.html',
             dataset_info=dataset_info,
@@ -112,6 +119,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
             headers=headers,
             rows=rows,
             max_cols_num=max_cols_num,
+            plots=dataset_graphs,
         )
 
     except FileNotFoundError:
@@ -140,3 +148,35 @@ def download_dataset(dataset_id: str):
     return send_from_directory(
        directory=dr, path=f'{dataset_id}.csv', as_attachment=True
     )
+
+
+@bp.route('/datasets/instruments', methods=['GET'])
+@admin_required
+def get_instruments() -> str | BadRequest:
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.render_instruments()
+
+
+@bp.route('/datasets/export', methods=['GET'])
+@admin_required
+def export_datasets() -> Response | BadRequest:
+    """
+    Обращается к методу контроллера для массового экспорта датасетов.
+    """
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+
+    return DatasetController.export_datasets()
+
+@bp.route('/datasets/import', methods=['POST'])
+@admin_required
+def import_datasets() -> Response | BadRequest:
+    """
+    Обращается к методу контроллера для массового импорта датасетов.
+    """
+    if request.method != 'POST':
+        return BadRequest('Invalid method')
+
+    return DatasetController.import_datasets(request)

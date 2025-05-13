@@ -2,16 +2,18 @@
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
 import os
-from pathlib import PosixPath, Path
 
-from flask import render_template, Request, Response, current_app, make_response, jsonify
+from io import BytesIO
+from pathlib import PosixPath
+from typing import Optional
+from flask import render_template, Request, Response, current_app, make_response, jsonify, flash, redirect, url_for, send_file
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
-from src.models.FilterValues import FilterValues
 from src.models.Dataset import Dataset
 from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetFormValues import DatasetFormValues
+from src.models.FilterValues import FilterValues
 from src.services.dataset_service import DatasetService
 
 
@@ -19,6 +21,24 @@ class DatasetController:
     """
     Класс-контроллер для запросов, связанных с датасетами.
     """
+    @staticmethod
+    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
+        old_dataset: Dataset = DatasetService.get_dataset(dataset_id)
+
+        dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
+                                                    old_dataset.dataset_author_login,
+                                                    filepath)
+        
+        if not form_values.dataset_data:
+            dataset.dataset_columns = old_dataset.dataset_columns
+            dataset.dataset_rows = old_dataset.dataset_rows
+            dataset.dataset_size = old_dataset.dataset_size
+
+        dataset.dataset_creation_date = old_dataset.dataset_creation_date
+        dataset.dataset_version = old_dataset.dataset_version + 1
+        dataset.dataset_last_editor = editor_username
+
+        DatasetService.edit_dataset(dataset)
 
     @staticmethod
     def render_all_datasets() -> str:
@@ -57,7 +77,7 @@ class DatasetController:
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
-        dataset_id = DatasetService.save_dataset(form_values, author=username, filepath=filepath)
+        dataset_id = DatasetService.save_dataset(form_values, author_username=username, filepath=filepath)
 
         filepath = os.path.join(filepath, f'{dataset_id}.csv')
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -66,6 +86,7 @@ class DatasetController:
 
         DatasetService.init_dataset_activity(dataset_id)
 
+        DatasetService.save_plots(dataset_id)
         response: Response = make_response()
         response.headers['redirect'] = '/datasets/'
         return response
@@ -89,8 +110,10 @@ class DatasetController:
     def remove_dataset(dataset_id: str) -> Response:
         """
         Обращается к методу сервиса для удаления объекта датасета с индексом dataset_id.
+        При удалении датасета, так же удаляются связанные с ним графики.
         """
         DatasetService.remove_dataset(dataset_id)
+        DatasetService.remove_graphs(dataset_id)
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
         filepath = os.path.join(filepath, f'{dataset_id}.csv')
@@ -99,7 +122,7 @@ class DatasetController:
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/{dataset_id}'
         return response
-
+    
     @staticmethod
     def edit_dataset(dataset_id: str, request: Request) -> Response:
         """
@@ -107,6 +130,7 @@ class DatasetController:
         Обращается к методу сервиса для изменения датасета в БД.
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
+        В случае смены файла, графики перерисовываются.
         """
 
         try:
@@ -116,14 +140,18 @@ class DatasetController:
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
+        file_changed: bool = False
         if request.files['dataset']:
             filepath: str = current_app.config['UPLOAD_FOLDER']
             filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
             with open(filepath, 'w') as file:
                 file.writelines(form_values.dataset_data)
+            file_changed = True
 
-        DatasetService.update_dataset(dataset_id, form_values, editor=username,
+        DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
                                       filepath=current_app.config['UPLOAD_FOLDER'])
+        if file_changed:
+            DatasetService.update_graphs(dataset_id)
 
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/'
@@ -152,6 +180,43 @@ class DatasetController:
         """
         activity: DatasetActivity = DatasetService.get_dataset_activity(dataset_id)
         return activity
+
+    @staticmethod
+    def get_plots(dataset_id: str) -> Optional[dict[list]]:
+        return DatasetService.get_plots(dataset_id)
+  
+    @staticmethod
+    def render_instruments() -> str:
+        return render_template('temp.html')
+
+    @staticmethod
+    def export_datasets() -> Response:
+        """
+        Обращается к методу сервиса для получения архива, содержащего дамп БД.
+        """
+        zip_file_bytes: BytesIO
+        file_name: str
+        zip_file_bytes, file_name = DatasetService.export_datasets_archive()
+
+        response = make_response(send_file(
+            zip_file_bytes,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=file_name
+        ))
+        return response
+
+    @staticmethod
+    def import_datasets(request: Request) -> Response:
+        """
+        Обращается к методу сервиса для загрузки архива, содержащего дамп БД.
+        """
+        backup: FileStorage = request.files['backup']
+        DatasetService.import_datasets_archive(backup)
+
+        response: Response = make_response()
+        response.headers['redirect'] = f'/datasets/'
+        return response
 
     @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:
