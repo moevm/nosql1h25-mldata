@@ -165,10 +165,6 @@ class DatasetController:
     @staticmethod
     def get_plots(dataset_id: str) -> Optional[dict[list]]:
         return DatasetService.get_plots(dataset_id)
-  
-    @staticmethod
-    def render_instruments() -> str:
-        return render_template('temp.html')
 
     @staticmethod
     def export_datasets() -> Response:
