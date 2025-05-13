@@ -1,7 +1,13 @@
 """
 Содержит сервисы приложения. Сервис представляет бизнес-логику приложения.
 """
+import os
 import uuid
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from io import BytesIO
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
@@ -68,6 +74,91 @@ class DatasetService:
         return inserted_id
 
     @staticmethod
+    def save_plots(dataset_id: str) -> None:
+        graphs: list[dict] = DatasetService.create_plots(dataset_id)
+        DatasetRepository.add_plots(dataset_id, graphs)
+
+    @staticmethod
+    def create_plots(dataset_id: str) -> list[dict]:
+        """
+        Создает список графиков по id датасета
+        """
+        def is_column_numeric(column) -> bool:
+            if np.issubdtype(column.dtype, np.number):
+                return True
+            elif pd.api.types.is_object_dtype(column):
+                converted = pd.to_numeric(column, errors='coerce')
+                has_non_numeric = (converted.isna() & column.notna()).any()
+                return not has_non_numeric
+            else:
+                return False
+
+        def is_column_categorical(column, max_unique_cat_count) -> bool:
+            """Check if a column is categorical."""
+            if isinstance(column.dtype, pd.CategoricalDtype) or pd.api.types.is_bool_dtype(column):
+                return True
+            return column.nunique() <= max_unique_cat_count
+
+        dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
+        filepath = os.path.join(dataset.dataset_path, f'{dataset_id}.csv')
+
+        max_cols_num: int = int(os.getenv('MAX_COLS_NUM', 30))
+        max_samples_num: int = int(os.getenv('MAX_SAMPLES_NUM', 100_000))
+        max_unique_count: int = int(os.getenv('MAX_UNIQUE_COUNT', 7))
+
+        df: pd.DataFrame = pd.read_csv(
+            filepath,
+            usecols=range(min(dataset.dataset_columns, max_cols_num)),
+            nrows=max_samples_num,
+            engine='c'
+        ).iloc[:max_samples_num]
+
+        graphs: list[dict] = []
+        if df.empty:
+            return graphs
+
+        cat_flag: bool = False
+        num_flag: bool = False
+        for col_idx, col in enumerate(df.columns):
+            try:
+                if cat_flag := is_column_categorical(df[col], max_unique_count):
+                    pass
+
+                elif num_flag := is_column_numeric(df[col]):
+                    df[col] = pd.to_numeric(df[col], errors='coerce').replace([np.inf, -np.inf], np.nan)
+
+                    if df[col].notna().mean() < 0.5:
+                        # много пропущенных значений
+                        continue
+
+                if cat_flag or num_flag:
+                    graph: dict = {}
+
+                    buf = BytesIO()
+                    plt.figure(figsize=(4, 2))
+
+                    if cat_flag:
+                        ax = sns.countplot(x=col, data=df, color='skyblue')
+                    else:
+                        ax = sns.histplot(data=df[col].dropna(), color='skyblue', kde=True, bins='auto')
+
+                    ax.set(xlabel=None, ylabel=None)
+                    sns.despine(left=True, bottom=True, right=True, top=True)
+                    plt.savefig(buf, format='svg', bbox_inches='tight', pad_inches=0, dpi=100)
+                    plt.close()
+
+                    graph['name'] = str(col_idx)
+                    graph['data'] = buf.getvalue()
+                    graphs.append(graph)
+
+                    buf.close()
+
+            except Exception:
+                continue
+
+        return graphs
+
+    @staticmethod
     def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
         """
         Создает объект Dataset на основе `form_values`.
@@ -90,8 +181,17 @@ class DatasetService:
         DatasetRepository.edit_dataset(dataset)
 
     @staticmethod
+    def update_graphs(dataset_id: str) -> None:
+        graphs: list[dict] = DatasetService.create_plots(dataset_id)
+        DatasetRepository.edit_plots(dataset_id, graphs)
+
+    @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
         return DatasetRepository.get_dataset(dataset_id)
+
+    @staticmethod
+    def get_plots(dataset_id: str) -> Optional[list[dict]]:
+        return DatasetRepository.get_plots(dataset_id)
 
     @staticmethod
     def edit_dataset(dataset_id: str) -> Dataset:
@@ -132,6 +232,10 @@ class DatasetService:
             # user not found?
             pass
 
+    @staticmethod
+    def remove_graphs(dataset_id: str) -> None:
+        return DatasetRepository.remove_graphs(dataset_id)
+      
     @staticmethod
     def export_datasets_archive() -> Tuple[BytesIO, str]:
         return DatasetRepository.export_datasets_archive()

@@ -69,32 +69,52 @@ body {
 }
 
 .table-container {
-    padding: 30px;
+    overflow-x: auto;
+    margin: 20px;
+    max-width: 100%;
 }
 
 .data-table {
-    table-layout: auto;
-    width: max-content;
-    min-width: calc(100% - 40px);
+    table-layout: fixed;
+    width: auto;
     border-collapse: collapse;
 }
 
 .data-table th,
 .data-table td {
-    height: 40px;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 8px 16px;
-    white-space: nowrap;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     background: white;
+    vertical-align: middle;
+    text-align: left;
+    max-width: 200px;
+    min-width: 120px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .image-row td {
-    width: 200px !important;
-    height: 300px !important;
-    background: #f8f9fa;
+    width: 250px !important;
+    min-width: 250px !important;
+    height: 200px !important;
+    padding: 10px !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.image-cell {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.image-cell svg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 #filter-button {

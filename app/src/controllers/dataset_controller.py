@@ -2,9 +2,10 @@
 Содержит контроллеры приложения. Контроллер является связным звеном между запросами с клиента и бизнес-логикой.
 """
 import os
+
 from io import BytesIO
 from pathlib import PosixPath
-
+from typing import Optional
 from flask import render_template, Request, Response, current_app, make_response, jsonify, flash, redirect, url_for, send_file
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
@@ -82,6 +83,7 @@ class DatasetController:
         with open(filepath, 'x') as file:
             file.writelines(form_values.dataset_data)
 
+        DatasetService.save_plots(dataset_id)
         response: Response = make_response()
         response.headers['redirect'] = '/datasets/'
         return response
@@ -105,8 +107,10 @@ class DatasetController:
     def remove_dataset(dataset_id: str) -> Response:
         """
         Обращается к методу сервиса для удаления объекта датасета с индексом dataset_id.
+        При удалении датасета, так же удаляются связанные с ним графики.
         """
         DatasetService.remove_dataset(dataset_id)
+        DatasetService.remove_graphs(dataset_id)
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
         filepath = os.path.join(filepath, f'{dataset_id}.csv')
@@ -123,6 +127,7 @@ class DatasetController:
         Обращается к методу сервиса для изменения датасета в БД.
         Сохраняется файл в выделенной директории.
         Возвращается response, содержащий URL страницы, открываемой после добавления.
+        В случае смены файла, графики перерисовываются.
         """
 
         try:
@@ -132,14 +137,18 @@ class DatasetController:
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
 
+        file_changed: bool = False
         if request.files['dataset']:
             filepath: str = current_app.config['UPLOAD_FOLDER']
             filepath: str = os.path.join(filepath, f'{dataset_id}.csv')
             with open(filepath, 'w') as file:
                 file.writelines(form_values.dataset_data)
+            file_changed = True
 
         DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
                                       filepath=current_app.config['UPLOAD_FOLDER'])
+        if file_changed:
+            DatasetService.update_graphs(dataset_id)
 
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/'
@@ -153,6 +162,10 @@ class DatasetController:
         dataset: Dataset = DatasetService.get_dataset(dataset_id)
         return dataset
 
+    @staticmethod
+    def get_plots(dataset_id: str) -> Optional[dict[list]]:
+        return DatasetService.get_plots(dataset_id)
+  
     @staticmethod
     def render_instruments() -> str:
         return render_template('temp.html')
@@ -185,7 +198,6 @@ class DatasetController:
         response: Response = make_response()
         response.headers['redirect'] = f'/datasets/'
         return response
-
 
     @staticmethod
     def _extract_form_values(request) -> DatasetFormValues:
