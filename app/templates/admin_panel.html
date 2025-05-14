@@ -34,9 +34,9 @@
             {% else %}
             <td>Заблокирован</td>
             {% endif %}
-            <td>{{ user.ds_count }}</td>
-            <td>{{ user.creation_date }}</td>
-            <td>{{ user.modify_date }}</td>
+            <td>{{ user.createdDatasetsCount }}</td>
+            <td>{{ user.accountCreationDate }}</td>
+            <td>{{ user.lastAccountModificationDate }}</td>
             <td>
             {% if user.status == 2 %}
             <div class="ui button" onclick="unban('{{ user._id }}')">Разблокировать</div>
