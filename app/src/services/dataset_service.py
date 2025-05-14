@@ -14,6 +14,7 @@ from typing import Optional, Tuple
 from flask_login import current_user
 
 from src.models.Dataset import Dataset
+from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.repository.dataset_repository import DatasetRepository
@@ -188,7 +189,23 @@ class DatasetService:
     @staticmethod
     def get_dataset(dataset_id: str) -> Dataset:
         return DatasetRepository.get_dataset(dataset_id)
+    
+    @staticmethod
+    def get_dataset_activity(dataset_id: str) -> DatasetActivity:
+        return DatasetRepository.get_dataset_activity(dataset_id)
+    
+    @staticmethod
+    def init_dataset_activity(dataset_id: str) -> None:
+        DatasetRepository.init_dataset_activity(dataset_id)
 
+    @staticmethod
+    def incr_dataset_views(dataset_id: str) -> None:
+        DatasetRepository.incr_dataset_views(dataset_id)
+
+    @staticmethod
+    def incr_dataset_downloads(dataset_id: str) -> None:
+        DatasetRepository.incr_dataset_downloads(dataset_id)
+    
     @staticmethod
     def get_plots(dataset_id: str) -> Optional[list[dict]]:
         return DatasetRepository.get_plots(dataset_id)
