@@ -34,7 +34,15 @@ app.config['UPLOAD_FOLDER'] = os.getenv('DATASET_DIR', './datasets')
 app.config['JOBS'] = [
     {
         'id': 'daily_dataset_activity_update',
-        'func': 'src.repository.dataset_repository:DatasetRepository.reset_day',  # Static method reference
+        'func': 'src.repository.dataset_repository:DatasetRepository.reset_day',  
+        'trigger': 'cron',
+        'hour': 0,                     
+        'minute': 0,
+        'timezone': 'Europe/Moscow'
+    },
+    {
+        'id': 'daily_dataset_activity_clean',
+        'func': 'src.repository.dataset_repository:DatasetRepository.clear_old_dates',  
         'trigger': 'cron',
         'hour': 0,                     
         'minute': 0,
@@ -49,6 +57,7 @@ scheduler.start()
 
 with app.app_context():
     DatasetRepository.reset_day()
+    DatasetRepository.clear_old_dates()
 
 
 
