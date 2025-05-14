@@ -109,7 +109,7 @@ class UserRepository:
             return False
         try:
             cursor = db.UserCollection.find()
-            userlist = [user for user in cursor]
+            userlist = [User(user) for user in cursor]
             return userlist
         except Exception as e:
             print(f"DatasetRepository: Error fetching dataset briefs from MongoDB: {e}")

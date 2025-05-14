@@ -1,5 +1,5 @@
 from src.services.user_service import UserService
-from flask import Response, make_response, jsonify
+from flask import render_template
 
 class AdminController:
     """
@@ -27,4 +27,4 @@ class AdminController:
         Получить всех пользоватей
         """
         
-        return jsonify(UserService.get_users())
+        return render_template('admin_panel.html', users=UserService.get_users())
