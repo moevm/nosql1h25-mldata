@@ -48,3 +48,52 @@ class UserService:
             return True, "Профиль успешно обновлен."
         else:
             return False, "Не удалось обновить профиль. Попробуйте снова."
+
+    @staticmethod
+    def ban_profile(user_id: str):
+        """
+        Блокирует профиль пользователя        
+        Возвращает кортеж (success: bool, message: str).
+        """
+        
+        user = UserRepository.find_by_id(user_id)
+        if not user:
+            return False, "Пользователь не найден."
+        
+        if user.status == 0:
+            return False, "Нельзя заблокировать привилигированного пользователя."
+        if user.status == 2:
+            return False, "Пользователь уже заблокирован."
+
+        update_payload = {
+            'status': 2,
+        }
+    
+        if not UserRepository.update_user_fields(user_id, update_payload):
+            return False, "Не удалось заблокировать профиль. Попробуйте снова."
+        return True, "Профиль успешно заблокирован."
+    
+
+    @staticmethod
+    def unban_profile(user_id: str):
+        """
+        Разблокирует профиль пользователя        
+        Возвращает кортеж (success: bool, message: str).
+        """
+        
+        user = UserRepository.find_by_id(user_id)
+        if not user:
+            return False, "Пользователь не найден."
+        
+        if user.status == 0:
+            return False, "Нельзя разблокировать привилигированного пользователя."
+        if user.status == 1:
+            return False, "Пользователь не заблокирован."
+
+        update_payload = {
+            'status': 1,
+        }
+        if not UserRepository.update_user_fields(user_id, update_payload):
+            return False, "Не удалось разблокировать профиль. Попробуйте снова."
+        return True, "Профиль успешно разблокирован."
+    
