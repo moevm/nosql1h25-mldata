@@ -98,3 +98,18 @@ class UserRepository:
         except Exception as e:
             print(f"UserRepository: Error updating user fields for id '{user_id}': {e}")
             return False
+        
+    @staticmethod
+    def get_users() -> list:
+        """
+        Возвращает всех зарегистрированных пользователей
+        """
+        if db is None:
+            print("UserRepository: Database connection not available for update.")
+            return False
+        try:
+            cursor = db.UserCollection.find()
+            userlist = [user for user in cursor]
+            return userlist
+        except Exception as e:
+            print(f"DatasetRepository: Error fetching dataset briefs from MongoDB: {e}")
