@@ -8,9 +8,12 @@ import os
 from urllib.parse import quote_plus
 from flask import Flask
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
 
 from src.routers import dataset_routes
 from src.routers import auth_routes
+
+from src.repository.dataset_repository import DatasetRepository
 
 # --- Flask App Initialization ---
 app: Flask = Flask(__name__, template_folder='templates')
@@ -27,6 +30,36 @@ port = os.getenv("PORT")
 
 app.config['MONGO_URI'] = f"mongodb://root:pass@db:27017"
 app.config['UPLOAD_FOLDER'] = os.getenv('DATASET_DIR', './datasets')
+
+app.config['JOBS'] = [
+    {
+        'id': 'daily_dataset_activity_update',
+        'func': 'src.repository.dataset_repository:DatasetRepository.reset_day',  
+        'trigger': 'cron',
+        'hour': 0,                     
+        'minute': 0,
+        'timezone': 'Europe/Moscow'
+    },
+    {
+        'id': 'daily_dataset_activity_clean',
+        'func': 'src.repository.dataset_repository:DatasetRepository.clear_old_dates',  
+        'trigger': 'cron',
+        'hour': 0,                     
+        'minute': 0,
+        'timezone': 'Europe/Moscow'
+    }
+]
+
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+
+with app.app_context():
+    DatasetRepository.reset_day()
+    DatasetRepository.clear_old_dates()
+
+
 
 CORS(app)
 

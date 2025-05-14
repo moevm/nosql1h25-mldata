@@ -1,3 +1,11 @@
+$(document).ready(() => {
+    $('.ui.accordion').accordion({
+        onOpen: function () {
+            this.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    });
+});
+
 const FLASK_ROOT_URL = "http://127.0.0.1:5000"
 const MAIN_PAGE = FLASK_ROOT_URL + "/datasets";
 const DELETE_URL = MAIN_PAGE + "/delete/";
@@ -94,6 +102,59 @@ function deleteDataset(datasetId) {
         });
 }
 
+function createViewsDownloadsPlots(statistics) {
+    statistics = JSON.parse(statistics.replaceAll("&#39;",'"'))
+
+    const views = document.getElementById("views-plot");
+    const downloads = document.getElementById("downloads-plot");
+    
+    const labels = statistics['dates']
+    options = {
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+
+    const ViewsData = {
+    labels: labels,
+    datasets: [{
+        title: 'Views',
+        data: statistics['views'],
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+    }]
+    };
+
+    const ViewsConfig = {
+        type: 'line',
+        data: ViewsData,
+        options: options
+    };
+
+    new Chart(views, ViewsConfig);
+
+    const DownloadsData = {
+    labels: labels,
+    datasets: [{
+        title: 'Downloads',
+        data: statistics['downloads'],
+        fill: false,
+        borderColor: 'rgb(75, 192, 75)',
+        tension: 0.1
+    }]
+    };
+
+    const DownloadsConfig = {
+        type: 'line',
+        data: DownloadsData,
+        options: options
+    };
+    new Chart(downloads, DownloadsConfig);
+}
+
 if (document.getElementById('csvUpload') !== null) {
     document.getElementById('csvUpload').addEventListener('change', function () {
         const label = document.getElementById('button-label');
@@ -118,3 +179,6 @@ if (document.getElementById('name') !== null) {
         document.getElementById('name-error').style.display = 'none';
     });
 }
+
+
+

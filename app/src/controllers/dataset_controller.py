@@ -11,6 +11,7 @@ from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 
 from src.models.Dataset import Dataset
+from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.services.dataset_service import DatasetService
@@ -82,6 +83,8 @@ class DatasetController:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'x') as file:
             file.writelines(form_values.dataset_data)
+
+        DatasetService.init_dataset_activity(dataset_id)
 
         DatasetService.save_plots(dataset_id)
         response: Response = make_response()
@@ -161,6 +164,22 @@ class DatasetController:
         """
         dataset: Dataset = DatasetService.get_dataset(dataset_id)
         return dataset
+    
+    @staticmethod
+    def incr_dataset_views(dataset_id: str) -> None:
+        DatasetService.incr_dataset_views(dataset_id)
+    
+    @staticmethod
+    def incr_dataset_downloads(dataset_id: str) -> None:
+        DatasetService.incr_dataset_downloads(dataset_id)
+    
+    @staticmethod
+    def get_dataset_activity(dataset_id: str) -> Dataset:
+        """
+        Возвращается структура, содержащая данные о датасете.
+        """
+        activity: DatasetActivity = DatasetService.get_dataset_activity(dataset_id)
+        return activity
 
     @staticmethod
     def get_plots(dataset_id: str) -> Optional[dict[list]]:

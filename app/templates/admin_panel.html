@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+<a class="header item" href="{{ url_for('datasets.get_datasets') }}">
+    Главная
+</a>
+{% endblock %}
+
+{% block content %}
+    <div class="ui styled fluid accordion">
+        <div class="title">
+                <i class="dropdown icon"></i>
+                <span class="header">Пользователи</span>
+        </div>
+
+        <div class="content">
+            <table id="users" class="ui celled table">
+                <thead>
+                    <tr>
+                        <th>Логин</th>
+                        <th>Имя пользователя</th>
+                        <th>Статус</th>
+                        <th>Создано наборов данных</th>
+                        <th>Дата создания аккаунта</th>
+                        <th>Дата изменения аккаунта</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.login }}</td>
+                        <td>{{ user.username }}</td>
+                        {% if user.status == 0 %}
+                        <td>Администратор</td>
+                        {% elif user.status == 1 %}
+                        <td>Активен</td>
+                        {% else %}
+                        <td>Заблокирован</td>
+                        {% endif %}
+                        <td>{{ user.ds_count }}</td>
+                        <td>{{ user.creation_date }}</td>
+                        <td>{{ user.modify_date }}</td>
+                        <td>{{ user.modify_date }}</td>
+                        {% if user.status == 2 %}
+                        <td class="ui button" href="/unban/{{ user.user_id }}">Разблокировать</td>
+                        {% else %}
+                        <td class="ui {% if user.status == 0%}disabled{% endif %} button" href="/ban/{{ user.user_id }}">Заблокировать</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Логин</th>
+                        <th>Имя пользователя</th>
+                        <th>Статус</th>
+                        <th>Создано наборов данных</th>
+                        <th>Дата создания аккаунта</th>
+                        <th>Дата изменения аккаунта</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra %}
+<script src="{{ url_for('static', filename='scripts/adminScripts.js') }}"></script>
+{% endblock %}

@@ -10,7 +10,7 @@ import tempfile
 import zipfile
 import pymongo
 
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 
 from glob import glob
 from io import BytesIO
@@ -23,6 +23,7 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.local import LocalProxy
 
 from src.models.Dataset import Dataset
+from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetBrief import DatasetBrief
 from src.models.FilterValues import FilterValues
 
@@ -195,6 +196,147 @@ class DatasetRepository:
                                 dataset['size'], dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
                                 dataset['lastModifiedBy'])
         return info
+    
+    @staticmethod
+    def init_dataset_activity(dataset_id: str) -> None:
+        """
+        Создает активность для датасета в БД.
+        """
+        db['DatasetActivityCollection'].insert_one({
+            '_id': dataset_id,
+            'statistics': {
+                str(date.today()): {
+                    'views': 0,
+                    'downloads': 0
+                }
+            }
+        })
+
+    @staticmethod
+    def incr_dataset_views(dataset_id: str) -> None:
+        """
+        Увеличивает число просмотров на странице.
+        """
+        collection = db['DatasetActivityCollection']
+        collection.update_one(
+            {"_id": dataset_id},
+            {"$inc": {
+                f"statistics.{str(date.today())}.views": 1,
+                f"statistics.{str(date.today())}.downloads": 0
+                }}
+        )
+
+    @staticmethod
+    def incr_dataset_downloads(dataset_id: str) -> None:
+        """
+        Увеличивает число загрузок на странице.
+        """
+        collection = db['DatasetActivityCollection']
+        collection.update_one(
+            {"_id": dataset_id},
+            {"$inc": {
+                f"statistics.{str(date.today())}.views": 0,
+                f"statistics.{str(date.today())}.downloads": 1
+                }}
+        )
+    
+    @staticmethod
+    def get_dataset_activity(dataset_id: str) -> Optional[DatasetActivity]:
+        """
+        Возвращает объект Activity для датасета с индексом dataset_id.
+        Если датасета с индексом dataset_id нет, то возвращает None.
+        """
+        collection = db['DatasetActivityCollection']
+
+        activity = collection.find_one({'_id': dataset_id})
+        if activity is None:
+            raise Exception(f'Element with {dataset_id} not found')
+
+        info: DatasetActivity = DatasetActivity(dataset_id, activity)
+        return info
+    
+    
+    @staticmethod
+    def clear_old_dates() -> None:
+        collection = db['DatasetActivityCollection']
+
+        # Calculate cutoff date (30 days ago)
+        cutoff_date = (datetime.now() - timedelta(days=30)).date()
+
+        docs = collection.find({"statistics": {"$exists": True}})
+
+        # Prepare bulk operations
+        bulk_operations = []
+
+        for doc in docs:
+
+            old_dates = []
+            
+            # Check each date in statistics
+            for date_str in doc['statistics'].keys():
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                if date_obj < cutoff_date:
+                    old_dates.append(date_str)
+
+            
+            # Create update operation if we have dates to remove
+            if old_dates:
+                unset_fields = {f"statistics.{date}": "" for date in old_dates}
+                bulk_operations.append(
+                    pymongo.UpdateOne(
+                        {"_id": doc["_id"]},
+                        {"$unset": unset_fields}
+                    )
+                )
+                
+            if bulk_operations:
+                collection.bulk_write(bulk_operations)
+    
+    @staticmethod
+    def reset_day() -> None:
+        """
+        Создает новый день.
+        """
+        collection = db['DatasetActivityCollection']
+        docs = collection.find({"statistics": {"$exists": True}})
+
+        # Prepare bulk operations
+        bulk_operations = []
+
+        for doc in docs:
+            # Find the latest date in statistics
+            dates = list(doc["statistics"].keys())
+
+            if not dates:
+                DatasetRepository.init_dataset_activity(doc['_id'])
+                dates = list(doc["statistics"].keys())
+                
+            latest_date = max(dates)
+            next_day = str(date.today())
+
+            if latest_date == next_day:
+                continue
+
+            next_day_stats = {
+                'views': 0,
+                'downloads': 0
+            }
+            
+            # Calculate next day (YYYY-MM-DD format)
+            
+            
+            # Add update operation to bulk
+            bulk_operations.append(
+                pymongo.UpdateOne(
+                    {"_id": doc["_id"]},
+                    {"$set": {f"statistics.{next_day}": next_day_stats}}
+                )
+            )
+
+        # Execute all operations in bulk
+        if bulk_operations:
+            collection.bulk_write(bulk_operations)
+            
 
     @staticmethod
     def get_plots(dataset_id: str) -> Optional[list[dict]]:

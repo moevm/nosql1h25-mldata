@@ -111,6 +111,32 @@
     </div>
 </div>
 
+<div class="ui divider"></div>
+
+<div class="ui styled fluid accordion">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        <span class="header">Активность</span>
+    </div>
+
+    <div class="content">
+        <div class="ui two column stackable grid">
+            <div class="column">
+                <div class="ui header">Просмотры</div>
+                <canvas id="views-plot"></canvas>
+            </div>
+            <div class="column">
+                <div class="ui header">Загрузки</div>
+                <canvas id="downloads-plot"></canvas>
+            </div>
+        </div> 
+    </div>
+</div>
+<br>
+{% endblock %}
+
+{% block extra %}
 <script src="{{ url_for('static', filename='scripts/datasetScripts.js') }}"></script>
+<script>createViewsDownloadsPlots("{{ dataset_activity.statistics }}")</script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 {% endblock %}
