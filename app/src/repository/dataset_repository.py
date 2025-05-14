@@ -229,7 +229,7 @@ class DatasetRepository:
     @staticmethod
     def incr_dataset_downloads(dataset_id: str) -> None:
         """
-        Увеличивает число просмотров на странице.
+        Увеличивает число загрузок на странице.
         """
         collection = db['DatasetActivityCollection']
         collection.update_one(
