@@ -38,7 +38,7 @@ app.config['JOBS'] = [
         'trigger': 'cron',
         'hour': 0,                     
         'minute': 0,
-        'timezone': 'UTC'
+        'timezone': 'Europe/Moscow'
     }
 ]
 
