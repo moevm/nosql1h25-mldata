@@ -205,7 +205,7 @@ def unban_user(user_id: str) -> str | BadRequest:
     return BadRequest(unban_result[1])
 
 
-@bp.route('/userlist/', methods=['GET'])
+@bp.route('/admin/', methods=['GET'])
 @login_required
 @admin_required
 def get_users() -> Response | BadRequest:
