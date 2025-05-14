@@ -220,18 +220,24 @@ class DatasetRepository:
         collection = db['DatasetActivityCollection']
         collection.update_one(
             {"_id": dataset_id},
-            {"$inc": {f"statistics.{str(date.today())}.views": 1}}
+            {"$inc": {
+                f"statistics.{str(date.today())}.views": 1,
+                f"statistics.{str(date.today())}.downloads": 0
+                }}
         )
 
     @staticmethod
     def incr_dataset_downloads(dataset_id: str) -> None:
         """
-        Увеличивает число загрузок на странице.
+        Увеличивает число просмотров на странице.
         """
         collection = db['DatasetActivityCollection']
         collection.update_one(
             {"_id": dataset_id},
-            {"$inc": {f"statistics.{str(date.today())}.downloads": 1}}
+            {"$inc": {
+                f"statistics.{str(date.today())}.views": 0,
+                f"statistics.{str(date.today())}.downloads": 1
+                }}
         )
     
     @staticmethod
@@ -266,20 +272,30 @@ class DatasetRepository:
             
             # Find the latest date in statistics
             dates = list(doc["statistics"].keys())
+
             if not dates:
-                continue
+                DatasetRepository.init_dataset_activity(doc['_id'])
+                dates = list(doc["statistics"].keys())
                 
             latest_date = max(dates)
-            latest_stats = doc["statistics"][latest_date]
+            next_day = str(date.today())
+
+            if latest_date == next_day:
+                continue
+
+            next_day_stats = {
+                'views': 0,
+                'downloads': 0
+            }
             
             # Calculate next day (YYYY-MM-DD format)
-            next_day = str(date.today())
+            
             
             # Add update operation to bulk
             bulk_operations.append(
                 pymongo.UpdateOne(
                     {"_id": doc["_id"]},
-                    {"$set": {f"statistics.{next_day}": latest_stats}}
+                    {"$set": {f"statistics.{next_day}": next_day_stats}}
                 )
             )
 
