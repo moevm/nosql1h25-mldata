@@ -1,4 +1,5 @@
 from src.services.user_service import UserService
+from flask import Response, make_response, jsonify
 
 class AdminController:
     """
@@ -19,4 +20,11 @@ class AdminController:
         Разблокирует пользователя по id
         """
         return UserService.unban_profile(user_id) 
-
+    
+    @staticmethod
+    def get_users():
+        """
+        Получить всех пользоватей
+        """
+        
+        return jsonify(UserService.get_users())
