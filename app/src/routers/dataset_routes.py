@@ -10,6 +10,8 @@ from werkzeug.exceptions import BadRequest
 from typing import Optional
 
 from src.controllers.dataset_controller import DatasetController
+from src.controllers.admin_controller import AdminController
+
 from src.models import Dataset
 from src.models.DatasetActivity import DatasetActivity
 from src.util.decorators import admin_required
@@ -170,3 +172,50 @@ def import_datasets() -> Response | BadRequest:
         return BadRequest('Invalid method')
 
     return DatasetController.import_datasets(request)
+
+@bp.route('/ban/<user_id>', methods=['POST'])
+@login_required
+@admin_required
+def ban_user(user_id: str) -> str | BadRequest:
+    """
+    Обращается к методу контроллера для блокирования пользователя
+    """
+    if request.method != 'POST':
+        return BadRequest('Invalid method')
+    
+    ban_result = AdminController.ban_user(user_id=user_id)
+    if ban_result[0]:
+        return ban_result[1]
+    return BadRequest(ban_result[1])
+
+
+@bp.route('/unban/<user_id>', methods=['POST'])
+@login_required
+@admin_required
+def unban_user(user_id: str) -> str | BadRequest:
+    """
+    Обращается к методу контроллера для разблокирования пользователя
+    """
+    if request.method != 'POST':
+        return BadRequest('Invalid method')
+    
+    unban_result = AdminController.unban_user(user_id=user_id)
+    if unban_result[0]:
+        return unban_result[1]
+    return BadRequest(unban_result[1])
+
+
+@bp.route('/admin/', methods=['GET'])
+@login_required
+@admin_required
+def get_users() -> Response | BadRequest:
+    """
+    Обращается с методу контроллера для получения списка пользователей.
+    Требует привилегии админа.
+    """
+    if request.method != 'GET':
+        return BadRequest('Invalid method')
+    try:
+        return AdminController.get_users()
+    except Exception as e:
+        return BadRequest(str(e))

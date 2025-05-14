@@ -29,7 +29,7 @@
             </a>
             {% if current_user.is_admin %}
             <a class="header center item {% if request.endpoint.startswith('admin.') %}active{% endif %}"
-               href="{{ url_for('auth.index') }}">
+               href="/admin/">
                 <i class="ui shield alternate icon"></i> Admin Panel
             </a>
             {% endif %}
