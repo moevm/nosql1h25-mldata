@@ -255,6 +255,43 @@ class DatasetRepository:
         info: DatasetActivity = DatasetActivity(dataset_id, activity)
         return info
     
+    
+    @staticmethod
+    def clear_old_dates() -> None:
+        collection = db['DatasetActivityCollection']
+
+        # Calculate cutoff date (30 days ago)
+        cutoff_date = (datetime.now() - timedelta(days=30)).date()
+
+        docs = collection.find({"statistics": {"$exists": True}})
+
+        # Prepare bulk operations
+        bulk_operations = []
+
+        for doc in docs:
+
+            old_dates = []
+            
+            # Check each date in statistics
+            for date_str in doc['statistics'].keys():
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                if date_obj < cutoff_date:
+                    old_dates.append(date_str)
+
+            
+            # Create update operation if we have dates to remove
+            if old_dates:
+                unset_fields = {f"statistics.{date}": "" for date in old_dates}
+                bulk_operations.append(
+                    pymongo.UpdateOne(
+                        {"_id": doc["_id"]},
+                        {"$unset": unset_fields}
+                    )
+                )
+                
+            if bulk_operations:
+                collection.bulk_write(bulk_operations)
+    
     @staticmethod
     def reset_day() -> None:
         """
@@ -267,9 +304,6 @@ class DatasetRepository:
         bulk_operations = []
 
         for doc in docs:
-            if not doc.get("statistics"):
-                continue
-            
             # Find the latest date in statistics
             dates = list(doc["statistics"].keys())
 
