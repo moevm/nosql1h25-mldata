@@ -97,3 +97,9 @@ class UserService:
             return False, "Не удалось разблокировать профиль. Попробуйте снова."
         return True, "Профиль успешно разблокирован."
     
+    @staticmethod
+    def get_users():
+        """
+        Возвращает список всех пользователей
+        """ 
+        return UserRepository.get_users()
