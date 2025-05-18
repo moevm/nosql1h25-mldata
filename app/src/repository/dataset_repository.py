@@ -310,28 +310,37 @@ class DatasetRepository:
             if not dates:
                 DatasetRepository.init_dataset_activity(doc['_id'])
                 dates = list(doc["statistics"].keys())
-                
-            latest_date = max(dates)
-            next_day = str(date.today())
 
-            if latest_date == next_day:
+            latest_date = date.fromisoformat(max(dates))
+            today = date.today()
+
+            if latest_date >= today:
                 continue
 
-            next_day_stats = {
+            # If we have to create more than 30 empty days - we create only 30
+            if (today - latest_date).days > 30:
+                latest_date = today - timedelta(days=30)
+
+            empty_entry = {
                 'views': 0,
                 'downloads': 0
             }
-            
-            # Calculate next day (YYYY-MM-DD format)
-            
-            
+
+            current_date = latest_date + timedelta(days=1)
+            updates = {}
+
+            while current_date <= today:
+                updates[f"statistics.{current_date.isoformat()}"] = empty_entry
+                current_date += timedelta(days=1)
+
             # Add update operation to bulk
-            bulk_operations.append(
-                pymongo.UpdateOne(
-                    {"_id": doc["_id"]},
-                    {"$set": {f"statistics.{next_day}": next_day_stats}}
+            if updates:
+                bulk_operations.append(
+                    pymongo.UpdateOne(
+                        {"_id": doc["_id"]},
+                        {"$set": updates}
+                    )
                 )
-            )
 
         # Execute all operations in bulk
         if bulk_operations:
