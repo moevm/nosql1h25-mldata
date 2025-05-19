@@ -213,12 +213,12 @@ def add_examples() -> None:
                 "_id": dataset_id2,
                 "statistics": {
                     "2025-05-01": {
-                        "views": 42,
-                        "downloads": 799
+                        "views": 1000,
+                        "downloads": 100
                     },
                     "2025-05-02": {
-                        "views": 6668,
-                        "downloads": 5
+                        "views": 900,
+                        "downloads": 20
                     }
                 }
             },
@@ -226,12 +226,12 @@ def add_examples() -> None:
                 "_id": dataset_id3,
                 "statistics": {
                     "2025-05-01": {
-                        "views": 42,
-                        "downloads": 799
+                        "views": 100,
+                        "downloads": 1000
                     },
                     "2025-05-02": {
-                        "views": 6668,
-                        "downloads": 5
+                        "views": 20,
+                        "downloads": 900
                     }
                 }
             },
