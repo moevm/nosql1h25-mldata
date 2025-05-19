@@ -25,6 +25,22 @@ class UserRepository:
     """
     Класс-репозиторий для данных, связанных с пользователями.
     """
+    
+    @staticmethod
+    def add_user(user_document: dict) -> bool:
+        """
+        Добавляет новый документ пользователя в UserCollection.
+        Возвращает True в случае успеха, False в случае ошибки.
+        """
+        if db is None:
+            print("UserRepository: Database connection not available for adding user.")
+            return False
+        try:
+            result = db.UserCollection.insert_one(user_document)
+            return result.inserted_id is not None
+        except Exception as e:
+            print(f"UserRepository: Error adding user to UserCollection: {e}")
+            return False
 
     @staticmethod
     def find_by_login(login: str) -> User | None:
@@ -94,7 +110,7 @@ class UserRepository:
 
         try:
             result = db.UserCollection.update_one({"_id": user_id}, {"$set": fields_to_update})
-            return result.modified_count > 0 or (result.matched_count > 0 and not fields_to_update)
+            return result.modified_count > 0 or (result.matched_count > 0 and not result.modified_count)
         except Exception as e:
             print(f"UserRepository: Error updating user fields for id '{user_id}': {e}")
             return False
@@ -112,4 +128,4 @@ class UserRepository:
             userlist = [User(user) for user in cursor]
             return userlist
         except Exception as e:
-            print(f"DatasetRepository: Error fetching dataset briefs from MongoDB: {e}")
+            print(f"UserRepository: Error fetching dataset briefs from MongoDB: {e}")
