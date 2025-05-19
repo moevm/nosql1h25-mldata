@@ -16,6 +16,8 @@ filterForm.addEventListener('submit', (e) => {
         parseFloat(formData.get('size-from')) > parseFloat(formData.get('size-to')) ||
         parseInt(formData.get('row-size-from')) > parseInt(formData.get('row-size-to')) ||
         parseInt(formData.get('column-size-from')) > parseInt(formData.get('column-size-to')) ||
+        parseInt(formData.get('views-from')) > parseInt(formData.get('views-to')) ||
+        parseInt(formData.get('downloads-from')) > parseInt(formData.get('downloads-to')) ||
         Date.parse(formData.get('creation-date-from')) > Date.parse(formData.get('creation-date-to')) ||
         Date.parse(formData.get('modify-date-from')) > Date.parse(formData.get('modify-date-to'))
     ) {
@@ -83,7 +85,7 @@ function createCard(brief) {
     return card
 }
 
-let sorts = $('#size-sort, #row-size-sort, #column-size-sort, #creation-date-sort, #modify-date-sort');
+let sorts = $('#size-sort, #row-size-sort, #column-size-sort, #creation-date-sort, #modify-date-sort, #views-sort, #downloads-sort');
 sorts.on('change', (event) => {
     const val = $(event.target).val();
 
