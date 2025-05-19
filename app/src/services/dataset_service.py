@@ -270,24 +270,23 @@ class DatasetService:
         size_from: Optional[float] = float(form_data['size-from']) if form_data['size-from'] != '' else None
         size_to: Optional[float] = float(form_data['size-to']) if form_data['size-to'] != '' else None
 
-        row_size_from: Optional[int] = int(float(form_data['row-size-from'])) if form_data[
-                                                                                     'row-size-from'] != '' else None
+        row_size_from: Optional[int] = int(float(form_data['row-size-from'])) if form_data['row-size-from'] != '' else None
         row_size_to: Optional[int] = int(float(form_data['row-size-to'])) if form_data['row-size-to'] != '' else None
 
-        column_size_from: Optional[int] = int(float(form_data['column-size-from'])) if form_data[
-                                                                                           'column-size-from'] != '' else None
-        column_size_to: Optional[int] = int(float(form_data['column-size-to'])) if form_data[
-                                                                                       'column-size-to'] != '' else None
+        column_size_from: Optional[int] = int(float(form_data['column-size-from'])) if form_data['column-size-from'] != '' else None
+        column_size_to: Optional[int] = int(float(form_data['column-size-to'])) if form_data['column-size-to'] != '' else None
 
-        creation_date_from: Optional[datetime] = datetime.strptime(form_data['creation-date-from'], '%Y-%m-%d') if \
-        form_data['creation-date-from'] != '' else None
-        creation_date_to: Optional[datetime] = datetime.strptime(form_data['creation-date-to'], '%Y-%m-%d') if \
-        form_data['creation-date-to'] != '' else None
+        views_from: Optional[int] = int(float(form_data['views-from'])) if form_data['views-from'] != '' else None
+        views_to: Optional[int] = int(float(form_data['views-to'])) if form_data['views-to'] != '' else None
 
-        modify_date_from: Optional[datetime] = datetime.strptime(form_data['modify-date-from'], '%Y-%m-%d') if \
-        form_data['modify-date-from'] != '' else None
-        modify_date_to: Optional[datetime] = datetime.strptime(form_data['modify-date-to'], '%Y-%m-%d') if form_data[
-                                                                                                               'modify-date-to'] != '' else None
+        downloads_from: Optional[int] = int(float(form_data['downloads-from'])) if form_data['downloads-from'] != '' else None
+        downloads_to: Optional[int] = int(float(form_data['downloads-to'])) if form_data['downloads-to'] != '' else None
+
+        creation_date_from: Optional[datetime] = datetime.strptime(form_data['creation-date-from'], '%Y-%m-%d') if form_data['creation-date-from'] != '' else None
+        creation_date_to: Optional[datetime] = datetime.strptime(form_data['creation-date-to'], '%Y-%m-%d') if form_data['creation-date-to'] != '' else None
+
+        modify_date_from: Optional[datetime] = datetime.strptime(form_data['modify-date-from'], '%Y-%m-%d') if form_data['modify-date-from'] != '' else None
+        modify_date_to: Optional[datetime] = datetime.strptime(form_data['modify-date-to'], '%Y-%m-%d') if form_data['modify-date-to'] != '' else None
 
         sort: Optional[dict] = DatasetService._extract_sort(form_data)
 
@@ -296,6 +295,8 @@ class DatasetService:
             size_from, size_to,
             row_size_from, row_size_to,
             column_size_from, column_size_to,
+            views_from, views_to,
+            downloads_from, downloads_to,
             creation_date_from, creation_date_to,
             modify_date_from, modify_date_to,
             sort
@@ -311,6 +312,12 @@ class DatasetService:
 
         if form_data['column-size-sort'] != '':
             return {'field': 'columnCount', 'order': form_data['column-size-sort']}
+
+        if form_data['views-sort'] != '':
+            return {'field': 'totalViews', 'order': form_data['views-sort']}
+
+        if form_data['downloads-sort'] != '':
+            return {'field': 'totalDownloads', 'order': form_data['downloads-sort']}
 
         if form_data['creation-date-sort'] != '':
             return {'field': 'creationDate', 'order': form_data['creation-date-sort']}

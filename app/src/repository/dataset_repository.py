@@ -10,7 +10,7 @@ import tempfile
 import zipfile
 import pymongo
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 
 from glob import glob
 from io import BytesIO
@@ -179,29 +179,29 @@ class DatasetRepository:
             query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
 
         if filters.column_size_from is not None or filters.column_size_to is not None:
-            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from,
-                                                                           filters.column_size_to)
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+
+        if filters.views_from is not None or filters.views_to is not None:
+            query['totalViews'] = DatasetRepository._create_from_to_query(filters.views_from, filters.views_to)
+
+        if filters.downloads_from is not None or filters.downloads_to is not None:
+            query['totalDownloads'] = DatasetRepository._create_from_to_query(filters.downloads_from, filters.downloads_to)
 
         if filters.creation_date_from is not None or filters.creation_date_to is not None:
-            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from,
-                                                                            filters.creation_date_to)
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
 
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
-            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from,
-                                                                                filters.modify_date_to)
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
         pipeline.append({
             '$match': query
         })
 
+        sort_query: dict = {}
         if filters.sort is not None:
-            sort_query: dict = {
-                filters.sort['field']: pymongo.ASCENDING if filters.sort['order'] == 'asc' else pymongo.DESCENDING
-            }
-        else:
-            sort_query: dict = {
-                '_id': 1
-            }
+            sort_query[filters.sort['field']] = pymongo.ASCENDING if filters.sort['order'] == 'asc' else pymongo.DESCENDING
+
+        sort_query['_id'] = 1
 
         pipeline.append({
             '$sort': sort_query
@@ -564,7 +564,7 @@ class DatasetRepository:
                 query['$gte'] = min(from_, INT64_MAX)
         if to_ is not None:
             if isinstance(to_, datetime):
-                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
+                query['$lte'] = min(datetime.combine(to_.date(), time.max), DATETIME_MAX)
             else:
                 query['$lte'] = min(to_, INT64_MAX)
         return query
