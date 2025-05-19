@@ -14,6 +14,8 @@ class FilterValues:
                  size_from: Optional[float], size_to: Optional[float],
                  row_size_from: Optional[int], row_size_to: Optional[int],
                  column_size_from: Optional[int], column_size_to: Optional[int],
+                 views_from: Optional[int], views_to: Optional[int],
+                 downloads_from: Optional[int], downloads_to: Optional[int],
                  creation_date_from: Optional[datetime], creation_date_to: Optional[datetime],
                  modify_date_from: Optional[datetime], modify_date_to: Optional[datetime],
                  sort: Optional[dict]):
@@ -28,6 +30,12 @@ class FilterValues:
 
         self.column_size_from: Optional[int] = column_size_from
         self.column_size_to: Optional[int] = column_size_to
+
+        self.views_from: Optional[int] = views_from
+        self.views_to: Optional[int] = views_to
+
+        self.downloads_from: Optional[int] = downloads_from
+        self.downloads_to: Optional[int] = downloads_to
 
         self.creation_date_from: Optional[datetime] = creation_date_from
         self.creation_date_to: Optional[datetime] = creation_date_to

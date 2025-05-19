@@ -10,7 +10,7 @@ import tempfile
 import zipfile
 import pymongo
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 
 from glob import glob
 from io import BytesIO
@@ -94,6 +94,78 @@ class DatasetRepository:
 
     @staticmethod
     def get_filtered_briefs(filters: FilterValues) -> list:
+        pipeline: list = []
+
+        # join collections
+        pipeline.append({
+            '$lookup': {
+                'from': 'DatasetActivityCollection',
+                'localField': '_id',
+                'foreignField': "_id",
+                'as': "activity"
+            }
+        })
+
+        # unwrap activity array
+        pipeline.append({
+            '$unwind': {
+                'path': '$activity',
+                'preserveNullAndEmptyArrays': True
+            }
+        })
+
+        # rewrite 'activity' field to contain only statistics object
+        pipeline.append({
+            '$addFields': {
+                'activity': {
+                    '$objectToArray': '$activity.statistics'
+                }
+            }
+        })
+
+        # turn statistics object into array of entries
+        pipeline.append({
+            '$unwind': '$activity'
+        })
+
+        # group and sum views and downloads
+        pipeline.append({
+            '$group': {
+                '_id': '$_id',
+                'doc': {
+                    '$first': '$$ROOT'
+                },
+                'totalViews': {
+                    '$sum': '$activity.v.views'
+                },
+                'totalDownloads': {
+                    '$sum': '$activity.v.downloads'
+                }
+            }
+        })
+
+        # add fields into original objects
+        pipeline.append({
+            '$addFields': {
+                'doc.totalViews': '$totalViews',
+                'doc.totalDownloads': '$totalDownloads'
+            }
+        })
+
+        # unwrap object
+        pipeline.append({
+            '$replaceRoot': {
+                'newRoot': '$doc'
+            }
+        })
+
+        # remove activity field
+        pipeline.append({
+            '$project': {
+                'activity': 0
+            }
+        })
+
         query: dict = {}
 
         if filters.name:
@@ -107,22 +179,35 @@ class DatasetRepository:
             query['rowCount'] = DatasetRepository._create_from_to_query(filters.row_size_from, filters.row_size_to)
 
         if filters.column_size_from is not None or filters.column_size_to is not None:
-            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from,
-                                                                           filters.column_size_to)
+            query['columnCount'] = DatasetRepository._create_from_to_query(filters.column_size_from, filters.column_size_to)
+
+        if filters.views_from is not None or filters.views_to is not None:
+            query['totalViews'] = DatasetRepository._create_from_to_query(filters.views_from, filters.views_to)
+
+        if filters.downloads_from is not None or filters.downloads_to is not None:
+            query['totalDownloads'] = DatasetRepository._create_from_to_query(filters.downloads_from, filters.downloads_to)
 
         if filters.creation_date_from is not None or filters.creation_date_to is not None:
-            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from,
-                                                                            filters.creation_date_to)
+            query['creationDate'] = DatasetRepository._create_from_to_query(filters.creation_date_from, filters.creation_date_to)
 
         if filters.modify_date_from is not None or filters.modify_date_to is not None:
-            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from,
-                                                                                filters.modify_date_to)
+            query['lastModifiedDate'] = DatasetRepository._create_from_to_query(filters.modify_date_from, filters.modify_date_to)
 
-        cursor = db['DatasetInfoCollection'].find(query)
+        pipeline.append({
+            '$match': query
+        })
 
+        sort_query: dict = {}
         if filters.sort is not None:
-            sort_query: list = [(filters.sort['field'], 1 if filters.sort['order'] == 'asc' else -1)]
-            cursor.sort(sort_query)
+            sort_query[filters.sort['field']] = pymongo.ASCENDING if filters.sort['order'] == 'asc' else pymongo.DESCENDING
+
+        sort_query['_id'] = 1
+
+        pipeline.append({
+            '$sort': sort_query
+        })
+
+        cursor = db.DatasetInfoCollection.aggregate(pipeline)
 
         briefs: list = []
         for doc in cursor:
@@ -192,11 +277,11 @@ class DatasetRepository:
             raise Exception(f'Element with {dataset_id} not found')
 
         info: Dataset = Dataset(dataset_id, dataset['name'], dataset['description'], dataset['creationDate'],
-                                dataset['author'], dataset['author_login'], dataset['rowCount'], dataset['columnCount'], 
+                                dataset['author'], dataset['author_login'], dataset['rowCount'], dataset['columnCount'],
                                 dataset['size'], dataset['lastVersionNumber'], dataset['lastModifiedDate'], dataset['path'],
                                 dataset['lastModifiedBy'])
         return info
-    
+
     @staticmethod
     def init_dataset_activity(dataset_id: str) -> None:
         """
@@ -239,7 +324,7 @@ class DatasetRepository:
                 f"statistics.{str(date.today())}.downloads": 1
                 }}
         )
-    
+
     @staticmethod
     def get_dataset_activity(dataset_id: str) -> Optional[DatasetActivity]:
         """
@@ -254,8 +339,8 @@ class DatasetRepository:
 
         info: DatasetActivity = DatasetActivity(dataset_id, activity)
         return info
-    
-    
+
+
     @staticmethod
     def clear_old_dates() -> None:
         collection = db['DatasetActivityCollection']
@@ -271,14 +356,14 @@ class DatasetRepository:
         for doc in docs:
 
             old_dates = []
-            
+
             # Check each date in statistics
             for date_str in doc['statistics'].keys():
                 date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
                 if date_obj < cutoff_date:
                     old_dates.append(date_str)
 
-            
+
             # Create update operation if we have dates to remove
             if old_dates:
                 unset_fields = {f"statistics.{date}": "" for date in old_dates}
@@ -288,10 +373,10 @@ class DatasetRepository:
                         {"$unset": unset_fields}
                     )
                 )
-                
+
             if bulk_operations:
                 collection.bulk_write(bulk_operations)
-    
+
     @staticmethod
     def reset_day() -> None:
         """
@@ -345,7 +430,7 @@ class DatasetRepository:
         # Execute all operations in bulk
         if bulk_operations:
             collection.bulk_write(bulk_operations)
-            
+
 
     @staticmethod
     def get_plots(dataset_id: str) -> Optional[list[dict]]:
@@ -479,7 +564,7 @@ class DatasetRepository:
                 query['$gte'] = min(from_, INT64_MAX)
         if to_ is not None:
             if isinstance(to_, datetime):
-                query['$lte'] = min(to_ + timedelta(days=1), DATETIME_MAX)
+                query['$lte'] = min(datetime.combine(to_.date(), time.max), DATETIME_MAX)
             else:
                 query['$lte'] = min(to_, INT64_MAX)
         return query
