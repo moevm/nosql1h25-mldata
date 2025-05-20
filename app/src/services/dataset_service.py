@@ -160,12 +160,15 @@ class DatasetService:
         return graphs
 
     @staticmethod
-    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str) -> None:
+    def update_dataset(dataset_id: str, form_values: DatasetFormValues, editor_username: str, filepath: str):
         """
         Создает объект Dataset на основе `form_values`.
         Обращается к методу репозитория для изменения датасета в БД.
         """
         old_dataset: Dataset = DatasetRepository.get_dataset(dataset_id)
+
+        if current_user.login != old_dataset.dataset_author_login and not current_user.is_admin:
+            raise Exception('Invalid user permission for update dataset')
 
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
                                                     old_dataset.dataset_author_login,
@@ -226,6 +229,9 @@ class DatasetService:
             return
 
         author_login: str = dataset_to_remove.dataset_author_login
+
+        if author_login != current_user.login and not current_user.is_admin:
+            raise Exception('Invalid user permission for delete dataset')
 
         DatasetRepository.remove_dataset(dataset_id)
         author_user: Optional[User] = UserRepository.find_by_login(author_login)

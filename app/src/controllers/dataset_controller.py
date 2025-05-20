@@ -15,6 +15,7 @@ from src.models.DatasetActivity import DatasetActivity
 from src.models.DatasetFormValues import DatasetFormValues
 from src.models.FilterValues import FilterValues
 from src.services.dataset_service import DatasetService
+from werkzeug.exceptions import BadRequest
 
 
 class DatasetController:
@@ -28,7 +29,7 @@ class DatasetController:
         dataset: Dataset = Dataset.from_form_values(form_values, old_dataset.dataset_id, old_dataset.dataset_author,
                                                     old_dataset.dataset_author_login,
                                                     filepath)
-        
+
         if not form_values.dataset_data:
             dataset.dataset_columns = old_dataset.dataset_columns
             dataset.dataset_rows = old_dataset.dataset_rows
@@ -107,12 +108,16 @@ class DatasetController:
         return render_template('edit_dataset.html', dataset_brief=dataset_brief)
 
     @staticmethod
-    def remove_dataset(dataset_id: str) -> Response:
+    def remove_dataset(dataset_id: str) -> Response | BadRequest:
         """
         Обращается к методу сервиса для удаления объекта датасета с индексом dataset_id.
         При удалении датасета, так же удаляются связанные с ним графики.
         """
-        DatasetService.remove_dataset(dataset_id)
+        try:
+            DatasetService.remove_dataset(dataset_id)
+        except Exception as e:
+            return BadRequest(f'Invalid user: {e}')
+
         DatasetService.remove_graphs(dataset_id)
 
         filepath: str = current_app.config['UPLOAD_FOLDER']
@@ -124,7 +129,7 @@ class DatasetController:
         return response
     
     @staticmethod
-    def edit_dataset(dataset_id: str, request: Request) -> Response:
+    def edit_dataset(dataset_id: str, request: Request) -> BadRequest | Response:
         """
         Создается объект DatasetFormData из данных request'а.
         Обращается к методу сервиса для изменения датасета в БД.
@@ -135,10 +140,16 @@ class DatasetController:
 
         try:
             username = current_user.username
-        except Exception:
-            username = 'noname'
+        except Exception as e:
+            return BadRequest(f'Invalid user: {e}')
 
         form_values: DatasetFormValues = DatasetController._extract_form_values(request)
+
+        try:
+            DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
+                                          filepath=current_app.config['UPLOAD_FOLDER'])
+        except Exception as e:
+            return BadRequest(f'Invalid user: {e}')
 
         file_changed: bool = False
         if request.files['dataset']:
@@ -148,8 +159,6 @@ class DatasetController:
                 file.writelines(form_values.dataset_data)
             file_changed = True
 
-        DatasetService.update_dataset(dataset_id, form_values, editor_username=username,
-                                      filepath=current_app.config['UPLOAD_FOLDER'])
         if file_changed:
             DatasetService.update_graphs(dataset_id)
 
