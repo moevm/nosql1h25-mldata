@@ -100,11 +100,14 @@ class DatasetController:
         return render_template('add_dataset.html')
 
     @staticmethod
-    def render_edit_dataset(dataset_id: str) -> str:
+    def render_edit_dataset(dataset_id: str) -> str | BadRequest:
         """
         Обращается к методу сервиса для получения объекта Brief для датасета с индексом dataset_id.
         """
         dataset_brief: Dataset = DatasetService.get_dataset(dataset_id)
+        if dataset_brief.dataset_author_login != current_user.login and not current_user.is_admin:
+            return BadRequest('Invalid user')
+
         return render_template('edit_dataset.html', dataset_brief=dataset_brief)
 
     @staticmethod
