@@ -71,9 +71,6 @@ class UserService:
 
         # Проверка изменения имени пользователя
         if new_username and new_username != user.username:
-            existing_user_with_new_name = UserRepository.find_by_username(new_username)
-            if existing_user_with_new_name and existing_user_with_new_name.id != user_id:
-                return False, f"Имя пользователя '{new_username}' уже занято. Пожалуйста, выберите другое."
             update_payload['username'] = new_username
             changed = True
 
