@@ -48,10 +48,15 @@
            href="/dataset/download/{{ dataset_info.dataset_id }}">
             Скачать
         </a>
-        <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">Редактировать</a>
-        <a class="ui negative button" onclick="deleteDataset('{{ dataset_info.dataset_id }}')" href="/datasets/">
-            Удалить
-        </a>
+         {% if dataset_info.dataset_author_login == current_user.login or current_user.is_admin %}
+            <a class="ui basic secondary button" href="/datasets/edit/{{ dataset_info.dataset_id }}/">
+                Редактировать
+            </a>
+            <a class="ui negative button" onclick="deleteDataset('{{ dataset_info.dataset_id }}')" href="/datasets/">
+                Удалить
+            </a>
+        {% endif %}
+
         <a class="ui right floated button" href="/datasets/">Назад</a>
     </div>
 
