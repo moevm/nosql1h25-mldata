@@ -94,6 +94,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
 
         max_cols_num: int = int(os.getenv('MAX_COLS_NUM'))
         max_rows_num: int = int(os.getenv('MAX_ROWS_NUM'))
+        per_page_charts: int = int(os.getenv('PER_PAGE_CHARTS'))
 
         df = pd.read_csv(filepath, nrows=max_rows_num, usecols=range(min(dataset_info.dataset_columns, max_cols_num)))
 
@@ -113,6 +114,8 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
         dataset_graphs = [] if dataset_graphs is None else dataset_graphs
         for d in dataset_graphs:
             d['data'] = d['data'].decode('utf-8')
+            if 'violin' in d:
+                d['violin'] = d['violin'].decode('utf-8')
 
         return render_template(
             'one_dataset.html',
@@ -122,6 +125,7 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
             rows=rows,
             max_cols_num=max_cols_num,
             plots=dataset_graphs,
+            per_page_charts=per_page_charts
         )
 
     except FileNotFoundError:

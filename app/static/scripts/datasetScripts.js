@@ -4,6 +4,7 @@ $(document).ready(() => {
             this.scrollIntoView({behavior: 'smooth', block: 'start'});
         }
     });
+    $('.menu .item').tab();
 });
 
 const FLASK_ROOT_URL = "http://127.0.0.1:5000"
@@ -179,6 +180,50 @@ if (document.getElementById('name') !== null) {
         document.getElementById('name-error').style.display = 'none';
     });
 }
+
+
+
+let currentPage = 1;
+
+function showPage(page) {
+  const cards = document.getElementsByClassName('chart-card');
+  const totalCards = cards.length;
+  const totalPages = Math.ceil(totalCards / perPage);
+
+  // Validate page number
+  if (page < 1) page = 1;
+  if (page > totalPages) page = totalPages;
+
+  // Calculate range
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+
+  // Hide all cards
+  Array.from(cards).forEach(card => card.style.display = 'none');
+  
+  // Show cards for current page
+  Array.from(cards).slice(start, end).forEach(card => {
+    card.style.display = 'block';
+  });
+
+  // Update current page
+  currentPage = page;
+
+  // Disable buttons when appropriate
+  document.querySelector('.pagination .item').disabled = currentPage === 1;
+  document.querySelector('.pagination .item:last-child').disabled = currentPage === totalPages;
+}
+
+function nextPage() {
+  showPage(currentPage + 1);
+}
+
+function previousPage() {
+  showPage(currentPage - 1);
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => showPage(1));
 
 
 

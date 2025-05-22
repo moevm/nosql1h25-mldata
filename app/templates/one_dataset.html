@@ -63,58 +63,92 @@
     <div class="ui divider"></div>
 </div>
 
-<div class="table-wrapper">
-    <div class="table-container">
-        <table class="data-table">
-            {% if dataset_info.dataset_columns > max_cols_num %}
-            <h3>{{ 'В датасете слишком много столбцов (' ~ dataset_info.dataset_columns ~ '). В таблице отобразятся первые ' ~ max_cols_num}}</h3>
-            {% endif %}
-            <colgroup>
-                {% for _ in headers %}
-                <col style="min-width: 120px; width: auto">
-                {% endfor %}
-            </colgroup>
-            <thead>
-                <tr>
-                    {% for header in headers %}
-                    <th>{{ header }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Image row -->
-                <tr class="image-row">
-                    {% set lst_ind = namespace(count=0) %}
-                    {% if dataset_info.dataset_columns > max_cols_num %}
-                        {% set col_lim = max_cols_num %}
-                    {% else %}
-                        {% set col_lim = dataset_info.dataset_columns %}
-                    {% endif %}
+<div class="ui top attached tabular menu">
+    <div class="active item" data-tab="table">Таблица</div>
+    <div class="item" data-tab="charts">Графики</div>
+</div>
 
-                    {% for col_ind in range(col_lim) %}
-                        <td>
-                            <div class="image-cell">
-                                {% if lst_ind.count < plots|length and col_ind == plots[lst_ind.count].name|int %}
-                                    {{ plots[lst_ind.count].data|safe }}
-                                    {% set lst_ind.count = lst_ind.count + 1 %}
-                                {% endif %}
-                            </div>
-                        </td>
+<div class="ui bottom attached tab segment active" data-tab="table">
+    <div class="table-wrapper">
+        <div class="table-container">
+            <table class="data-table">
+                {% if dataset_info.dataset_columns > max_cols_num %}
+                <h3>{{ 'В датасете слишком много столбцов (' ~ dataset_info.dataset_columns ~ '). В таблице отобразятся первые ' ~ max_cols_num}}</h3>
+                {% endif %}
+                <colgroup>
+                    {% for _ in headers %}
+                    <col style="min-width: 120px; width: auto">
                     {% endfor %}
-                </tr>
+                </colgroup>
+                <thead>
+                    <tr>
+                        {% for header in headers %}
+                        <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Image row -->
+                    <tr class="image-row">
+                        {% set lst_ind = namespace(count=0) %}
+                        {% if dataset_info.dataset_columns > max_cols_num %}
+                            {% set col_lim = max_cols_num %}
+                        {% else %}
+                            {% set col_lim = dataset_info.dataset_columns %}
+                        {% endif %}
 
-                <!-- Regular rows -->
-                {% for row in rows %}
-                <tr>
-                    {% for cell in row %}
-                    <td>{{ cell }}</td>
+                        {% for col_ind in range(col_lim) %}
+                            <td>
+                                <div class="image-cell">
+                                    {% if lst_ind.count < plots|length and col_ind == plots[lst_ind.count].name|int %}
+                                        {{ plots[lst_ind.count].data|safe }}
+                                        {% set lst_ind.count = lst_ind.count + 1 %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        {% endfor %}
+                    </tr>
+
+                    <!-- Regular rows -->
+                    {% for row in rows %}
+                    <tr>
+                        {% for cell in row %}
+                        <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<div class="ui bottom attached tab big segment" data-tab="charts">
+    <div class="ui two cards">
+        {% set drawn_count = namespace(count=0) %}
+        {% for i in range(dataset_info.dataset_columns) %}
+            {% if 'violin' in plots[i] and drawn_count.count < max_cols_num %}
+            {% set drawn_count.count = drawn_count.count + 1 %}
+            <div class="ui card chart-card" style="display: none;">
+                <div class="content">
+                    <div class="ui header">{{ plots[i].col_name }}</div>
+                    <div class="image-cell">{{ plots[i].violin|safe }}</div> 
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if drawn_count.count > 0 %}
+    <div class="ui pagination menu">
+        <a class="item" onclick="previousPage()">Предыдущая</a>
+        <a class="item" onclick="nextPage()">Следующая </a>
+    </div>
+    {% else %}
+    <h3 class="ui center aligned header">Нет числовых признаков для построения графиков</h3>
+    {% endif %}
+</div>
+
+
 
 <div class="ui divider"></div>
 
@@ -141,6 +175,10 @@
 {% endblock %}
 
 {% block extra %}
+<script src="https://cdn.datatables.net/2.3.0/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.3.0/js/dataTables.semanticui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.2/semantic.min.js"></script>
+<script>const perPage = Number.parseInt('{{ per_page_charts }}');</script>
 <script src="{{ url_for('static', filename='scripts/datasetScripts.js') }}"></script>
 <script>createViewsDownloadsPlots("{{ dataset_activity.statistics }}")</script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
