@@ -184,7 +184,6 @@ if (document.getElementById('name') !== null) {
 
 
 let currentPage = 1;
-const perPage = 2; // Cards per page
 
 function showPage(page) {
   const cards = document.getElementsByClassName('chart-card');
