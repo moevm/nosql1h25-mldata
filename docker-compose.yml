@@ -52,7 +52,7 @@ services:
       FLASK_DEBUG: ${FLASK_DEBUG}
       PYTHONUNBUFFERED: 1
     ports:
-      - "127.0.0.1:${FLASK_LISTEN_PORT:-5000}:5000"
+      - "127.0.0.1:5000:5000"
     networks:
       - service_net
     volumes:
