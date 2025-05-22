@@ -113,6 +113,8 @@ def get_dataset(dataset_id: str) -> BadRequest | tuple[str, int] | str:
         dataset_graphs = [] if dataset_graphs is None else dataset_graphs
         for d in dataset_graphs:
             d['data'] = d['data'].decode('utf-8')
+            if 'violin' in d:
+                d['violin'] = d['violin'].decode('utf-8')
 
         return render_template(
             'one_dataset.html',
