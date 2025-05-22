@@ -149,9 +149,10 @@ class DatasetService:
                     plt.close()
 
                     graph['name'] = str(col_idx)
+                    graph['col_name'] = str(df.columns[col_idx])
                     graph['data'] = buf.getvalue()
 
-                    if num_flag:
+                    if not cat_flag:
                         buf = BytesIO()
                         plt.figure(figsize=(4, 2))
                         ax = sns.violinplot(data=df[col].dropna(), color='skyblue')

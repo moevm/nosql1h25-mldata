@@ -131,7 +131,7 @@
             {% set drawn_count.count = drawn_count.count + 1 %}
             <div class="ui card chart-card" style="display: none;">
                 <div class="content">
-                    <div class="ui header">{{ headers[i] }}</div>
+                    <div class="ui header">{{ plots[i].col_name }}</div>
                     <div class="image-cell">{{ plots[i].violin|safe }}</div> 
                 </div>
             </div>
