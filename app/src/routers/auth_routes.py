@@ -143,9 +143,12 @@ def unauthorized():
 def index():
     """Переход к страницам в зависимости от состояния авторизации"""
     if current_user.is_authenticated:
-        return redirect(url_for('datasets.get_datasets'))
+        response = redirect(url_for('datasets.get_datasets'))
     else:
-        return redirect(url_for('auth.login'))
+        response = redirect(url_for('auth.login'))
+
+    response.status_code = 200
+    return response
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
